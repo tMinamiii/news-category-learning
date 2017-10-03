@@ -26,15 +26,14 @@ def scrape(rss_dic: dict, date: datetime) -> list:
     return chunk_dic
 
 
-def collect(rss_dic: dict, ganre: str, time: datetime):
+def collect(rss_dic: dict, time: datetime):
     chunk_dic = scrape(rss_dic, time)
-    datestr = time.strftime('%Y-%m-%d')
-    targetdir = 'csv/' + datestr
-    if not os.path.isdir(targetdir):
-        os.makedirs(targetdir)
-
     timestr = time.strftime('%Y-%m-%d-%H-%M-%s')
     for k, v in chunk_dic.items():
+        targetdir = 'csv/' + k
+        if not os.path.isdir(targetdir):
+            os.makedirs(targetdir)
+
         filename = targetdir + '/YN_' + k + '_' + timestr + '.csv'
         dump_csv(filename, v)
 
