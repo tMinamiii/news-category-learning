@@ -5,7 +5,7 @@ import tensorflow as tf
 import pickle
 
 
-class TokenDictionary:
+class TokenUID:
     def __init__(self, csv_list: list, token_dic=None):
         self.csv_list = csv_list
         if token_dic is None:
@@ -47,7 +47,7 @@ class TokenDictionary:
 
 
 class LearningData:
-    def __init__(self, token_dic: TokenDictionary):
+    def __init__(self, token_dic: TokenUID):
         self.token_dic = token_dic
 
     def make(self, wc_lower: int=200) -> list:
