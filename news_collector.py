@@ -16,8 +16,8 @@ def scrape(rss_dic: dict, date: datetime) -> list:
     scraper = yahoonews.YahooNewsScraper()
     chunk_dic = {}
     for url in rss_dic.values():
-        result = scraper.scrape_news(url, sleep=2)
-        #result = scraper.scrape_news(url, sleep=2, date=date)
+        #result = scraper.scrape_news(url, sleep=2)
+        result = scraper.scrape_news(url, sleep=2, date=date)
         for k, v in result.items():
             if k in chunk_dic:
                 chunk_dic[k].extend(v)
