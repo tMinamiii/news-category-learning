@@ -29,16 +29,17 @@ class TokenDictionary:
 class LearningData:
     def __init__(self):
         self.td = TokenDictionary()
-        self.learning_data = []
 
-    def make(self, csv_list: list) -> None:
+    def make(self, csv_list: list) -> list:
         all_news = self.read_csv_data(csv_list)
+        learning_data = []
         for news in all_news:
             category = news[0]
             vec_list = self.token_uid_list_2_vec_list(
                 news[1], self.td.seq_no_uid)
             tf_vec = self.calc_norm_tf_vector(vec_list)
-            self.learning_data.append((category, tf_vec))
+            learning_data.append((category, tf_vec))
+        return learning_data
 
     def dump_token_dic(self, filepath: str) -> None:
         with open(filepath, mode='wb') as f:
@@ -110,8 +111,12 @@ class LearningData:
         平準化することで、長文にある1単語より、短文の1単語のほうが特徴に重みが付く。
         ※ただし、平準化は実験的な手法なので、もっといい方法があれば変更する
         '''
-        total = np.array(0)
+        #total = np.zeros(self.td.seq_no_uid)
+        total = None
         for vec in manuscript_vecs:
-            total += vec
+            if total is None:
+                total = vec
+            else:
+                total += vec
         total /= len(manuscript_vecs)
         return total
