@@ -21,14 +21,15 @@ class TokenUID:
     def dump(self, filepath: str) -> None:
         with open(filepath, mode='wb') as f:
             pickle.dump(self.token_dic, f)
+        # csvリストもdumpする
+        # オブジェクトごとdumpすればよいのでは？
 
     def load(self, filepath: str) -> None:
         with open(filepath, mode='rb') as f:
             loaded_dic = pickle.load(f)
             self.token_dic = loaded_dic
-
-    def uid(self, token: str) -> int:
-        return self.token_dic[token]
+            self.seq_no_uid = len(loaded_dic)
+        # csvリストもloadする
 
     def initialize(self) -> list:
         '''
@@ -46,12 +47,12 @@ class TokenUID:
 
 
 class LearningData:
-    def __init__(self, token_dic: TokenUID):
-        self.token_dic = token_dic
+    def __init__(self, token_uid: TokenUID):
+        self.token_uid = token_uid
 
     def make(self, wc_lower: int=200) -> list:
         learning_data = []
-        for csv_path in self.token_dic.csv_list:
+        for csv_path in self.token_uid.csv_list:
             data = self.read_csv(csv_path, wc_lower)
             learning_data.extend(data)
         return learning_data
@@ -69,7 +70,7 @@ class LearningData:
                 token_list = tokenize(manuscript)
                 uid_list = self.token_2_uid(token_list)
                 vec_list = self.token_uid_list_2_vec_list(
-                    uid_list, self.token_dic.seq_no_uid)
+                    uid_list, self.token_uid.seq_no_uid)
                 tf_vec = self.calc_norm_tf_vector(vec_list)
                 learning_data.append((category, tf_vec))
         return learning_data
@@ -77,7 +78,7 @@ class LearningData:
     def token_2_uid(self, manuscript_tokens: list)-> list:
         manuscript_token_uid_list = []
         for tok in manuscript_tokens:
-            manuscript_token_uid_list.append(self.token_dic.uid(tok))
+            manuscript_token_uid_list.append(self.token_uid.token_dic[tok])
         return manuscript_token_uid_list
 
     def token_uid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
