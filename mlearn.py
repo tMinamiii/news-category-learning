@@ -6,7 +6,8 @@ import pickle
 
 
 class TokenDictionary:
-    def __init__(self, token_dic=None):
+    def __init__(self, csv_list: list, token_dic=None):
+        self.csv_list = csv_list
         if token_dic is None:
             token_dic = {}
         self.token_dic = token_dic
@@ -30,13 +31,13 @@ class TokenDictionary:
     def uid(self, token: str) -> int:
         return self.token_dic[token]
 
-    def initialize(self, csv_list: list) -> list:
+    def initialize(self) -> list:
         '''
          ニュースのCSVを読み込んで、学習用データに変換する。
         ニュース原稿はTokenizeされ、更にuidのリスト(単なる数字のリスト)に変換される。
         ベクトルの最大次元数は、全データを読み込まないとわからないので、ここではまだTFベクトルに変換しない。
         '''
-        for csv_path in csv_list:
+        for csv_path in self.csv_list:
             with open(csv_path, 'r') as f:
                 reader = csv.reader(f)
                 for row in reader:
@@ -49,9 +50,9 @@ class LearningData:
     def __init__(self, token_dic: TokenDictionary):
         self.token_dic = token_dic
 
-    def make(self, csv_list: list, wc_lower: int=200) -> list:
+    def make(self, wc_lower: int=200) -> list:
         learning_data = []
-        for csv_path in csv_list:
+        for csv_path in self.token_dic.csv_list:
             data = self.read_csv(csv_path, wc_lower)
             learning_data.extend(data)
         return learning_data
