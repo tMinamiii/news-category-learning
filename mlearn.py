@@ -34,28 +34,11 @@ class TokenDict:
                 self.seq_no += 1
 
 
-def tokenize(manuscript: str):
-    token_list = []
-    tokenizer = Tokenizer()
-    tokens = tokenizer.tokenize(manuscript)
-    for tok in tokens:
-        ps = tok.part_of_speech.split(',')[0]
-        if not ps in ['名詞', '動詞', '形容詞']:
-            continue
-        # 原形があれば原形をリストに入れる
-        w = tok.base_form
-        if w == '*' or w == '':
-            # 原形がなければ表層系(原稿の単語そのまま)をリストに入れる
-            w = tok.surface
-        if w == '' or w == '\n':
-            continue
-        token_list.append(w)
-    return token_list
-
-
 class NewsCategoryLearning:
-    def __init__(self, csv_list: str):
+    def __init__(self):
         self.tdict = TokenDict()
+
+    def initialize(self, csv_list: str):
         self.all_news = self.read_csv_data(csv_list)
         self.learning_data = []
         for news in self.all_news:
@@ -82,11 +65,29 @@ class NewsCategoryLearning:
                         continue
                     category = row[0]
                     manuscript = row[3]
-                    token_list = tokenize(manuscript)
+                    token_list = self.tokenize(manuscript)
                     self.tdict.update(token_list)
                     token_uid_list = self.tdict.convert2uid(token_list)
                     all_news.append((category, token_uid_list))
         return all_news
+
+    def tokenize(self, manuscript: str):
+        token_list = []
+        tokenizer = Tokenizer()
+        tokens = tokenizer.tokenize(manuscript)
+        for tok in tokens:
+            ps = tok.part_of_speech.split(',')[0]
+            if not ps in ['名詞', '動詞', '形容詞']:
+                continue
+            # 原形があれば原形をリストに入れる
+            w = tok.base_form
+            if w == '*' or w == '':
+                # 原形がなければ表層系(原稿の単語そのまま)をリストに入れる
+                w = tok.surface
+            if w == '' or w == '\n':
+                continue
+            token_list.append(w)
+        return token_list
 
     def token_uid_list_2_vec_list(self, token_uid_list: list, max_dim: int):
         '''
