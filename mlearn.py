@@ -31,7 +31,7 @@ class LearningData:
         self.td = TokenDictionary()
         self.learning_data = []
 
-    def make(self, csv_list: str):
+    def make(self, csv_list: list) -> None:
         all_news = self.read_csv_data(csv_list)
         for news in all_news:
             category = news[0]
@@ -40,16 +40,16 @@ class LearningData:
             tf_vec = self.calc_norm_tf_vector(vec_list)
             self.learning_data.append((category, tf_vec))
 
-    def dump_token_dic(self, filepath: str):
+    def dump_token_dic(self, filepath: str) -> None:
         with open(filepath, mode='wb') as f:
             pickle.dump(self.td.token_dic, f)
 
-    def load_token_dic(self, filepath):
+    def load_token_dic(self, filepath: str) -> None:
         with open(filepath, mode='rb') as f:
             loaded_dic = pickle.load(f)
             self.td = TokenDictionary(loaded_dic)
 
-    def read_csv_data(self, csv_list: list, wc_lower=200):
+    def read_csv_data(self, csv_list: list, wc_lower: int=200) -> list:
         '''
          ニュースのCSVを読み込んで、学習用データに変換する。
         ニュース原稿はTokenizeされ、更にuidのリスト(単なる数字のリスト)に変換される。
@@ -72,7 +72,7 @@ class LearningData:
                     all_news.append((category, token_uid_list))
         return all_news
 
-    def tokenize(self, manuscript: str):
+    def tokenize(self, manuscript: str) -> list:
         token_list = []
         tokenizer = Tokenizer()
         tokens = tokenizer.tokenize(manuscript)
@@ -90,7 +90,7 @@ class LearningData:
             token_list.append(w)
         return token_list
 
-    def token_uid_list_2_vec_list(self, token_uid_list: list, max_dim: int):
+    def token_uid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
         '''
          形態素に割り振られた連番のユニークIDから基底ベクトルを作成する。
         形態素の'Python'のユニークIDが「3」、次元数が「5」
