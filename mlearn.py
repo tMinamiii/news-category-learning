@@ -36,11 +36,11 @@ class TokenDict:
 class NewsCategoryLearning:
     def __init__(self):
         self.tdict = TokenDict()
+        self.learning_data = []
 
     def initialize(self, csv_list: str):
-        self.all_news = self.read_csv_data(csv_list)
-        self.learning_data = []
-        for news in self.all_news:
+        all_news = self.read_csv_data(csv_list)
+        for news in all_news:
             category = news[0]
             vec_list = self.token_uid_list_2_vec_list(
                 news[1], self.tdict.seq_no)
