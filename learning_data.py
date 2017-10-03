@@ -1,7 +1,6 @@
 from janome.tokenizer import Tokenizer
 import csv
 import numpy as np
-import tensorflow as tf
 import pickle
 
 
