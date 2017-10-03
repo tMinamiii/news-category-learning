@@ -26,9 +26,9 @@ def scrape(rss_dic: dict, date: datetime) -> list:
     return chunk_dic
 
 
-def collect(rss_dic: dict, time: datetime):
+def collect(rss_dic: dict, current_time: datetime):
     chunk_dic = scrape(rss_dic, time)
-    timestr = time.strftime('%Y-%m-%d-%H-%M-%s')
+    timestr = current_time.strftime('%Y-%m-%d-%H-%M-%s')
     for k, v in chunk_dic.items():
         targetdir = 'csv/' + k
         if not os.path.isdir(targetdir):
@@ -50,10 +50,10 @@ if __name__ == '__main__':
     entertaiment = rss.scrape_entertaiment_newslist()
 
     time = datetime.datetime.now()
-    collect(jp, 'jp', time)
-    collect(world, 'world', time)
-    collect(economic, 'economic', time)
-    collect(sports, 'sports', time)
-    collect(it_science, 'it_science', time)
-    collect(life, 'life', time)
-    collect(entertaiment, 'entertaiment', time)
+    collect(jp, time)
+    collect(world, time)
+    collect(economic, time)
+    collect(sports, time)
+    collect(it_science, time)
+    collect(life, time)
+    collect(entertaiment, time)
