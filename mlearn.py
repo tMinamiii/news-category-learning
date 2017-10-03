@@ -5,19 +5,12 @@ import tensorflow as tf
 import pickle
 
 
-class TokenDict:
-    def __init__(self):
-        self.token_dic = {}
-        self.seq_no = 0
-
-    def dump(self, filepath: str):
-        with open(filepath, mode='wb') as f:
-            pickle.dump(self.token_dic, f)
-
-    def load(self, filepath):
-        with open(filepath, mode='rb') as f:
-            self.token_dic = pickle.load(f)
-            self.seq_no = len(self.token_dic)
+class TokenDictionary:
+    def __init__(self, token_dic=None):
+        if token_dic is None:
+            token_dic = {}
+        self.token_dic = token_dic
+        self.seq_no_uid = len(token_dic)
 
     def convert2uid(self, manuscript_tokens: list):
         manuscript_token_uid_list = []
@@ -29,13 +22,13 @@ class TokenDict:
     def update(self, manuscript_tokens: list):
         for tok in manuscript_tokens:
             if not tok in self.token_dic:
-                self.token_dic[tok] = self.seq_no
-                self.seq_no += 1
+                self.token_dic[tok] = self.seq_no_uid
+                self.seq_no_uid += 1
 
 
 class LearningData:
     def __init__(self):
-        self.tdict = TokenDict()
+        self.td = TokenDictionary()
         self.learning_data = []
 
     def make(self, csv_list: str):
@@ -43,9 +36,18 @@ class LearningData:
         for news in all_news:
             category = news[0]
             vec_list = self.token_uid_list_2_vec_list(
-                news[1], self.tdict.seq_no)
+                news[1], self.td.seq_no_uid)
             tf_vec = self.calc_norm_tf_vector(vec_list)
             self.learning_data.append((category, tf_vec))
+
+    def dump_token_dic(self, filepath: str):
+        with open(filepath, mode='wb') as f:
+            pickle.dump(self.td.token_dic, f)
+
+    def load_token_dic(self, filepath):
+        with open(filepath, mode='rb') as f:
+            loaded_dic = pickle.load(f)
+            self.td = TokenDictionary(loaded_dic)
 
     def read_csv_data(self, csv_list: str, wc_lower=200):
         '''
@@ -65,8 +67,8 @@ class LearningData:
                     category = row[0]
                     manuscript = row[3]
                     token_list = self.tokenize(manuscript)
-                    self.tdict.update(token_list)
-                    token_uid_list = self.tdict.convert2uid(token_list)
+                    self.td.update(token_list)
+                    token_uid_list = self.td.convert2uid(token_list)
                     all_news.append((category, token_uid_list))
         return all_news
 
