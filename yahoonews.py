@@ -3,7 +3,6 @@ import urllib.request as req
 import time
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-import csv
 import datetime
 
 
