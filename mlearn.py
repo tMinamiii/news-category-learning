@@ -15,7 +15,7 @@ class TokenDictionary:
     def convert2uid(self, manuscript_tokens: list):
         manuscript_token_uid_list = []
         for tok in manuscript_tokens:
-            self.update(str)
+            self.update(tok)
             manuscript_token_uid_list.append(self.token_dic[tok])
         return manuscript_token_uid_list
 
@@ -49,7 +49,7 @@ class LearningData:
             loaded_dic = pickle.load(f)
             self.td = TokenDictionary(loaded_dic)
 
-    def read_csv_data(self, csv_list: str, wc_lower=200):
+    def read_csv_data(self, csv_list: list, wc_lower=200):
         '''
          ニュースのCSVを読み込んで、学習用データに変換する。
         ニュース原稿はTokenizeされ、更にuidのリスト(単なる数字のリスト)に変換される。
@@ -60,7 +60,7 @@ class LearningData:
             with open(csv_path, 'r') as f:
                 reader = csv.reader(f)
                 for row in reader:
-                    word_count = row[2]
+                    word_count = int(row[2])
                     # 原稿の文字数が200文字以下なら飛ばす
                     if word_count < wc_lower:
                         continue
