@@ -30,7 +30,7 @@ class YahooNewsScraper:
                     if type(con) == Tag:
                         continue
                     manuscript += con.string.strip(' 　')
-            except AttributeError:
+            except:
                 print('Error occoured while scraping : ' + news_url)
         manuscript = manuscript.replace('\r', '')
         manuscript = manuscript.replace('\n', '')
