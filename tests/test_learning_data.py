@@ -1,4 +1,5 @@
 import unittest
+import numpy as np
 from learning_data import LearningData
 from learning_data import TokenUID
 
@@ -42,8 +43,38 @@ class TestLearningData(unittest.TestCase):
     test class of mlearn.py LeaningData
     '''
 
-    def test_read_csv_data(self):
-        csv_list = ['tests/test_news.csv']
+    csv_list = ['tests/test2.csv']
+    tuid = TokenUID()
+    tuid.contruct(csv_list)
+    ldata = LearningData(tuid)
+
+    def test_token_2_uid(self):
+        tokens = ['プログラミング', 'Python', '言語']
+        uids = self.ldata.token_2_uid(tokens)
+        self.assertEqual(uids, [2, 0, 3])
+
+    def test_token_uid_list_2_vec_list(self):
+        token_uids = [2, 0, 4, 10, 3]
+        vecs = self.ldata.token_uid_list_2_vec_list(
+            token_uids, self.tuid.seq_no_uid)
+        self.assertEqual(len(vecs[0]), 29)
+        ans_vec0 = np.array(
+            [0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).astype(float)
+        self.assertTrue(np.allclose(vecs[0], ans_vec0))
+
+    def test_calc_norm_tf_vector(self):
+        token_uids = [2, 0, 2, 10, 3, 0, 2]
+        vecs = self.ldata.token_uid_list_2_vec_list(
+            token_uids, self.tuid.seq_no_uid)
+        tf = self.ldata.calc_norm_tf_vector(vecs)
+        elem0 = 2.0 / len(token_uids)
+        elem2 = 3.0 / len(token_uids)
+        elem10 = 1.0 / len(token_uids)
+        elem3 = 1.0 / len(token_uids)
+
+        ans_vec0 = np.array(
+            [elem0, 0, elem2, elem3, 0, 0, 0, 0, 0, 0, elem10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).astype(float)
+        self.assertTrue(np.allclose(tf, ans_vec0))
 
 
 if __name__ == '__main__':
