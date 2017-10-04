@@ -79,7 +79,7 @@ class LearningData:
         '''
         vec_list = []
         for uid in token_uid_list:
-            vec = np.zeros(max_dim)
+            vec = np.zeros(max_dim + 1)
             vec[uid] = 1
             vec_list.append(vec)
         return vec_list
