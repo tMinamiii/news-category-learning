@@ -5,45 +5,41 @@ import pickle
 
 
 class TokenUID:
-    def __init__(self, csv_list: list, token_dic=None):
-        self.csv_list = csv_list
-        if token_dic is None:
-            token_dic = {}
-        self.token_dic = token_dic
-        self.seq_no_uid = len(token_dic)
-
-    def update(self, manuscript_tokens: list):
-        for tok in manuscript_tokens:
-            if not tok in self.token_dic:
-                self.token_dic[tok] = self.seq_no_uid
-                self.seq_no_uid += 1
-
-    def dump(self, filepath: str) -> None:
-        with open(filepath, mode='wb') as f:
-            pickle.dump(self.token_dic, f)
-        # csvリストもdumpする
-        # オブジェクトごとdumpすればよいのでは？
-
-    def load(self, filepath: str) -> None:
-        with open(filepath, mode='rb') as f:
-            loaded_dic = pickle.load(f)
-            self.token_dic = loaded_dic
-            self.seq_no_uid = len(loaded_dic)
-        # csvリストもloadする
-
-    def initialize(self) -> list:
+    def __init__(self):
+        self.loaded_csv_list = []
+        self.token_dic = {}
+        self.seq_no_uid = 0
         '''
          ニュースのCSVを読み込んで、学習用データに変換する。
         ニュース原稿はTokenizeされ、更にuidのリスト(単なる数字のリスト)に変換される。
         ベクトルの最大次元数は、全データを読み込まないとわからないので、ここではまだTFベクトルに変換しない。
         '''
-        for csv_path in self.csv_list:
+
+    def contruct(self, csv_list: list):
+        for csv_path in csv_list:
             with open(csv_path, 'r') as f:
                 reader = csv.reader(f)
+                self.loaded_csv_list.append(csv_path)
                 for row in reader:
+                    if len(row) != 4:
+                        continue
                     manuscript = row[3]
                     token_list = tokenize(manuscript)
-                    self.update(token_list)
+                    for tok in token_list:
+                        if not tok in self.token_dic:
+                            self.token_dic[tok] = self.seq_no_uid
+                            self.seq_no_uid += 1
+
+    def dump(self, filepath: str) -> None:
+        with open(filepath, mode='wb') as f:
+            pickle.dump(self, f)
+
+    def load(self, filepath: str) -> None:
+        with open(filepath, mode='rb') as f:
+            loaded_data = pickle.load(f)
+            self.seq_no_uid = loaded_data.seq_no_uid
+            self.token_dic = loaded_data.token_dic
+            self.loaded_csv_list = loaded_data.loaded_csv_list
 
 
 class LearningData:
@@ -53,26 +49,20 @@ class LearningData:
     def make(self, wc_lower: int=200) -> list:
         learning_data = []
         for csv_path in self.token_uid.csv_list:
-            data = self.read_csv(csv_path, wc_lower)
-            learning_data.extend(data)
-        return learning_data
-
-    def read_csv(self, csv_path: str, wc_lower: int=200) -> list:
-        learning_data = []
-        with open(csv_path, 'r') as f:
-            reader = csv.reader(f)
-            for line in reader:
-                wc = int(line[2])
-                if wc < wc_lower:
-                    continue
-                category = line[0]
-                manuscript = line[3]
-                token_list = tokenize(manuscript)
-                uid_list = self.token_2_uid(token_list)
-                vec_list = self.token_uid_list_2_vec_list(
-                    uid_list, self.token_uid.seq_no_uid)
-                tf_vec = self.calc_norm_tf_vector(vec_list)
-                learning_data.append((category, tf_vec))
+            with open(csv_path, 'r') as f:
+                reader = csv.reader(f)
+                for line in reader:
+                    wc = int(line[2])
+                    if wc < wc_lower:
+                        continue
+                    category = line[0]
+                    manuscript = line[3]
+                    token_list = tokenize(manuscript)
+                    uid_list = self.token_2_uid(token_list)
+                    vec_list = self.token_uid_list_2_vec_list(
+                        uid_list, self.token_uid.seq_no_uid)
+                    tf_vec = self.calc_norm_tf_vector(vec_list)
+                    learning_data.append((category, tf_vec))
         return learning_data
 
     def token_2_uid(self, manuscript_tokens: list)-> list:
