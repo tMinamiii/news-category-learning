@@ -8,6 +8,7 @@ class TokenUID:
     def __init__(self):
         self.loaded_csv_list = []
         self.token_dic = {}
+        self.categories = set()
         self.seq_no_uid = 0
         '''
          ニュースのCSVを読み込んで、学習用データに変換する。
@@ -23,6 +24,7 @@ class TokenUID:
                 for row in reader:
                     if len(row) != 4:
                         continue
+                    self.categories.add(row[0])
                     manuscript = row[3]
                     token_list = tokenize(manuscript)
                     for tok in token_list:
@@ -40,6 +42,7 @@ class TokenUID:
             self.seq_no_uid = loaded_data.seq_no_uid
             self.token_dic = loaded_data.token_dic
             self.loaded_csv_list = loaded_data.loaded_csv_list
+            self.categories = loaded_data.categories
 
 
 class LearningData:
