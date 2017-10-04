@@ -1,0 +1,50 @@
+import unittest
+from learning_data import LearningData
+from learning_data import TokenUID
+
+
+class TestTokenUID(unittest.TestCase):
+
+    def test_construct1(self):
+        csv_list = ['tests/test1.csv']
+        tuid = TokenUID()
+        tuid.contruct(csv_list)
+        self.assertEqual(tuid.seq_no_uid, 4)
+        self.assertEqual(tuid.loaded_csv_list, csv_list)
+        self.assertEqual(tuid.token_dic, {
+                         '汎用': 1, '言語': 3, 'Python': 0, 'プログラミング': 2})
+
+    def test_construct2(self):
+        csv_list = ['tests/test2.csv']
+        tuid = TokenUID()
+        tuid.contruct(csv_list)
+        self.assertEqual(tuid.seq_no_uid, 28)
+        self.assertEqual(tuid.loaded_csv_list, csv_list)
+        self.assertEqual(tuid.token_dic, {'プログラミング': 2, 'する': 9, '部分': 23, '最小限': 25, '汎用': 1, 'Python': 0, 'られる': 27, '設計': 8, '特徴': 18, 'シンプル': 5, '本体': 22, '抑える': 26,
+                                          'やすい': 7, '少ない': 14, '核': 20, '比べる': 13, '必要': 24, 'れる': 10, '言語': 3, 'コード': 4, 'ある': 19, '数': 16, 'C': 12, 'なる': 21, '行': 15, 'いる': 11, '扱う': 6, '書ける': 17})
+
+    def test_dump_and_load(self):
+        filepath = 'tests/tokenuid.dump'
+        csv_list = ['tests/test2.csv']
+        tuid = TokenUID()
+        tuid.contruct(csv_list)
+        tuid.dump(filepath)
+        tuid2 = TokenUID()
+        tuid2.load(filepath)
+        self.assertEqual(tuid2.seq_no_uid, 28)
+        self.assertEqual(tuid2.loaded_csv_list, csv_list)
+        self.assertEqual(tuid2.token_dic, {'プログラミング': 2, 'する': 9, '部分': 23, '最小限': 25, '汎用': 1, 'Python': 0, 'られる': 27, '設計': 8, '特徴': 18, 'シンプル': 5, '本体': 22, '抑える': 26,
+                                           'やすい': 7, '少ない': 14, '核': 20, '比べる': 13, '必要': 24, 'れる': 10, '言語': 3, 'コード': 4, 'ある': 19, '数': 16, 'C': 12, 'なる': 21, '行': 15, 'いる': 11, '扱う': 6, '書ける': 17})
+
+
+class TestLearningData(unittest.TestCase):
+    '''
+    test class of mlearn.py LeaningData
+    '''
+
+    def test_read_csv_data(self):
+        csv_list = ['tests/test_news.csv']
+
+
+if __name__ == '__main__':
+    unittest.main()
