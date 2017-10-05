@@ -28,9 +28,6 @@ class TokenUID:
                     self.categories.add(row[0])
                     manuscript = row[3]
                     try:
-                        manuscript = re.sub(r'[0-9\@\"\,\.]+', '', manuscript)
-                        manuscript = re.sub(
-                            r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
                         token_list = tokenize(manuscript)
                     except IndexError:
                         print(row)
@@ -58,10 +55,10 @@ class LearningData:
         self.token_uid = token_uid
 
     def make(self, ratio_of_train=10, wc_lower: int=200) -> (np.array, np.array):
-        train_data = np.array()
-        predict_data = np.array()
+        train_data = []
+        predict_data = []
         count = 1
-        for csv_path in self.token_uid.csv_list:
+        for csv_path in self.token_uid.loaded_csv_list:
             with open(csv_path, 'r') as f:
                 reader = csv.reader(f)
                 for line in reader:
@@ -84,12 +81,13 @@ class LearningData:
                         count = 0
                     else:
                         count += 1
-        return train_data, predict_data
+        return np.array(train_data), np.array(predict_data)
 
     def token_2_uid(self, manuscript_tokens: list)-> list:
         manuscript_token_uid_list = []
         for tok in manuscript_tokens:
-            manuscript_token_uid_list.append(self.token_uid.token_dic[tok])
+            manuscript_token_uid_list.append(
+                self.token_uid.token_dic[str(tok)])
         return manuscript_token_uid_list
 
     def token_uid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
@@ -126,6 +124,9 @@ class LearningData:
 def tokenize(manuscript: str) -> list:
     token_list = []
     tokenizer = Tokenizer()
+    manuscript = re.sub(r'[0-9\@\"\,\.]+', '', manuscript)
+    manuscript = re.sub(
+        r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
     tokens = tokenizer.tokenize(manuscript)
     for tok in tokens:
         ps = tok.part_of_speech.split(',')[0]
