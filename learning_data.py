@@ -54,9 +54,11 @@ class LearningData:
     def __init__(self, token_uid: TokenUID):
         self.token_uid = token_uid
 
-    def make(self, ratio_of_train=10, wc_lower: int=200) -> (np.array, np.array):
-        train_data = []
-        predict_data = []
+    def make(self, ratio_of_train=10, wc_lower: int=200) -> (np.array, np.array, np.array, np.array):
+        train_label = []
+        train_vec = []
+        predict_label = []
+        predict_vec = []
         count = 1
         for csv_path in self.token_uid.loaded_csv_list:
             with open(csv_path, 'r') as f:
@@ -73,15 +75,17 @@ class LearningData:
                         uid_list, self.token_uid.seq_no_uid)
                     tf_vec = self.calc_norm_tf_vector(vec_list)
                     if count <= ratio_of_train:
-                        train_data.append((category, tf_vec))
+                        train_label.append(category)
+                        train_vec.append(tf_vec)
                     else:
-                        predict_data.append((category, tf_vec))
+                        predict_label.append(category)
+                        predict_vec.append(tf_vec)
 
                     if count >= 10:
                         count = 0
                     else:
                         count += 1
-        return np.array(train_data), np.array(predict_data)
+        return np.array(train_label), np.array(train_vec), np.array(predict_label), np.array(predict_vec)
 
     def token_2_uid(self, manuscript_tokens: list)-> list:
         manuscript_token_uid_list = []

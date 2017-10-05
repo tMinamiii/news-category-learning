@@ -5,7 +5,7 @@ from learning_data import LearningData
 tuid = TokenUID()
 tuid.load('tuid/2017-10-05.tuid')
 train_ld = LearningData(tuid)
-train_data, predict_data = train_ld.make()
+train_label, train_data, predict_label, predict_data = train_ld.make()
 
 vec_dim = tuid.seq_no_uid
 num_units = 1024
@@ -33,7 +33,7 @@ sess.run(tf.global_variables_initializer())
 # batch_count = 0
 # batch_data = train_data[batch_count:batch_count + batch_size]
 # batch_count += batch_size
-sess.run(train_step, feed_dict={x: train_data[:, 1], t: train_data[:, 0]})
+sess.run(train_step, feed_dict={x: train_data, t: train_label})
 loss_val, acc_val = sess.run([loss, accuracy], feed_dict={
-                             x: train_data[:, 1], t: train_data[:, 0]})
+                             x: train_data, t: train_label})
 print('Step: %d, Loss: %f, Accuracy: %f' % (1, loss_val, acc_val))
