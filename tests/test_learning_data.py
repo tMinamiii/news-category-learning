@@ -9,7 +9,7 @@ class TestTokenUID(unittest.TestCase):
     def test_construct1(self):
         csv_list = ['tests/test1.csv']
         tuid = TokenUID()
-        tuid.contruct(csv_list)
+        tuid.update(csv_list)
         self.assertEqual(tuid.seq_no_uid, 4)
         self.assertEqual(tuid.loaded_csv_list, csv_list)
         self.assertEqual(tuid.token_dic, {
@@ -18,7 +18,7 @@ class TestTokenUID(unittest.TestCase):
     def test_construct2(self):
         csv_list = ['tests/test2.csv']
         tuid = TokenUID()
-        tuid.contruct(csv_list)
+        tuid.update(csv_list)
         self.assertEqual(tuid.seq_no_uid, 28)
         self.assertEqual(tuid.loaded_csv_list, csv_list)
         self.assertEqual(tuid.token_dic, {'プログラミング': 2, 'する': 9, '部分': 23, '最小限': 25, '汎用': 1, 'Python': 0, 'られる': 27, '設計': 8, '特徴': 18, 'シンプル': 5, '本体': 22, '抑える': 26,
@@ -28,7 +28,7 @@ class TestTokenUID(unittest.TestCase):
         filepath = 'tests/tokenuid.dump'
         csv_list = ['tests/test2.csv']
         tuid = TokenUID()
-        tuid.contruct(csv_list)
+        tuid.update(csv_list)
         tuid.dump(filepath)
         tuid2 = TokenUID()
         tuid2.load(filepath)
@@ -45,7 +45,7 @@ class TestLearningData(unittest.TestCase):
 
     csv_list = ['tests/test2.csv']
     tuid = TokenUID()
-    tuid.contruct(csv_list)
+    tuid.update(csv_list)
     ldata = LearningData(tuid)
 
     def test_token_2_uid(self):

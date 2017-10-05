@@ -17,7 +17,7 @@ class TokenUID:
         ベクトルの最大次元数は、全データを読み込まないとわからないので、ここではまだTFベクトルに変換しない。
         '''
 
-    def contruct(self, csv_list: list):
+    def update(self, csv_list: list):
         for csv_path in csv_list:
             with open(csv_path, 'r') as f:
                 reader = csv.reader(f)
