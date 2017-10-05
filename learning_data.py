@@ -2,6 +2,7 @@ from janome.tokenizer import Tokenizer
 import csv
 import numpy as np
 import pickle
+import re
 
 
 class TokenUID:
@@ -26,7 +27,14 @@ class TokenUID:
                         continue
                     self.categories.add(row[0])
                     manuscript = row[3]
-                    token_list = tokenize(manuscript)
+                    try:
+                        manuscript = re.sub(r'[0-9\@\"\,\.]+', '', manuscript)
+                        manuscript = re.sub(
+                            r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
+                        token_list = tokenize(manuscript)
+                    except IndexError:
+                        print(row)
+
                     for tok in token_list:
                         if not tok in self.token_dic:
                             self.token_dic[tok] = self.seq_no_uid
