@@ -1,5 +1,5 @@
-from learning_data import TokenUID
 import glob
+import learning_data as ld
 import datetime
 categories = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
@@ -8,19 +8,21 @@ output_name = current_time.strftime('%Y-%m-%d')
 
 
 def dump_all_csv():
-    tuid = TokenUID()
+    tuid = ld.TokenUID()
     csv_list = []
     for cat in categories:
         csv = glob.glob('csv/' + cat + '/*.csv')
         csv_list.extend(csv)
 
     tuid.update(csv_list)
-    tuid.dump('tuid/' + output_name + '.tuid')
+    ld.dump(tuid, 'ldata/' + output_name + '.tuid')
+    ldata = ld.LearningData(tuid)
+    ldata.make()
+    ld.dump(ldata, 'ldata/' + output_name + '.ldata')
 
 
 def update_tuid(prevfile):
-    tuid = TokenUID()
-    tuid.load(prevfile)
+    tuid = ld.load(prevfile)
     loaded_date = datetime.datetime.strftime(prevfile, 'tuid/%Y-%m-%d.tuid')
     csv_list = []
     for cat in categories:
@@ -33,7 +35,10 @@ def update_tuid(prevfile):
             if loaded_date < scrap_date:
                 csv_list.extend(c)
     tuid.update(csv_list)
-    tuid.dump('tuid/' + output_name + '.tuid')
+    ld.dump(tuid, 'tuid/' + output_name + '.tuid')
+    ldata = ld.LearningData(tuid)
+    ldata.make()
+    ld.dump(ldata, 'ldata/' + output_name + '.ldata')
 
 
 dump_all_csv()

@@ -1,15 +1,16 @@
 import tensorflow as tf
-from learning_data import TokenUID
-from learning_data import LearningData
+import learning_data as ld
 
-tuid = TokenUID()
-tuid.load('tuid/2017-10-05.tuid')
-train_ld = LearningData(tuid)
-train_label, train_data, predict_label, predict_data = train_ld.make()
-
-vec_dim = tuid.seq_no_uid
+#tuid = ld.TokenUID()
+# ld.load('tuid/2017-10-05.tuid')
+train_ld = ld.load('ldata/2017-10-06.ldata')
+tuid = train_ld.token_uid
+vec_dim = tuid.seq_no_uid + 1
 num_units = 1024
 num_categories = len(tuid.categories)
+train_label = train_ld.train_label
+train_data = train_ld.train_vec
+
 x = tf.placeholder(tf.float32, [None, vec_dim])
 
 w1 = tf.Variable(tf.truncated_normal([vec_dim, num_units]))
@@ -33,7 +34,11 @@ sess.run(tf.global_variables_initializer())
 # batch_count = 0
 # batch_data = train_data[batch_count:batch_count + batch_size]
 # batch_count += batch_size
-sess.run(train_step, feed_dict={x: train_data, t: train_label})
-loss_val, acc_val = sess.run([loss, accuracy], feed_dict={
-                             x: train_data, t: train_label})
-print('Step: %d, Loss: %f, Accuracy: %f' % (1, loss_val, acc_val))
+i = 0
+for _ in range(5000):
+    i += 1
+    sess.run(train_step, feed_dict={x: train_data, t: train_label})
+    if i % 100 == 0:
+        loss_val, acc_val = sess.run([loss, accuracy], feed_dict={
+                                     x: train_data, t: train_label})
+        print('Step: %d, Loss: %f, Accuracy: %f' % (1, loss_val, acc_val))

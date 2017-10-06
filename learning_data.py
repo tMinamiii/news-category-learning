@@ -37,28 +37,16 @@ class TokenUID:
                             self.token_dic[tok] = self.seq_no_uid
                             self.seq_no_uid += 1
 
-    def dump(self, filepath: str) -> None:
-        with open(filepath, mode='wb') as f:
-            pickle.dump(self, f)
-
-    def load(self, filepath: str) -> None:
-        with open(filepath, mode='rb') as f:
-            loaded_data = pickle.load(f)
-            self.seq_no_uid = loaded_data.seq_no_uid
-            self.token_dic = loaded_data.token_dic
-            self.loaded_csv_list = loaded_data.loaded_csv_list
-            self.categories = loaded_data.categories
-
 
 class LearningData:
     def __init__(self, token_uid: TokenUID):
         self.token_uid = token_uid
+        self.train_label = []
+        self.train_vec = []
+        self.predict_label = []
+        self.predict_vec = []
 
-    def make(self, ratio_of_train=10, wc_lower: int=200) -> (np.array, np.array, np.array, np.array):
-        train_label = []
-        train_vec = []
-        predict_label = []
-        predict_vec = []
+    def make(self, ratio_of_train=10, wc_lower: int=200):
         count = 1
         for csv_path in self.token_uid.loaded_csv_list:
             with open(csv_path, 'r') as f:
@@ -68,33 +56,36 @@ class LearningData:
                     if wc < wc_lower:
                         continue
                     category = line[0]
+                    category_vec = np.zeros(
+                        len(self.token_uid.categories))
+                    cat_list = list(self.token_uid.categories)
+                    category_vec[cat_list.index(category)] += 1
                     manuscript = line[3]
                     token_list = tokenize(manuscript)
-                    uid_list = self.token_2_uid(token_list)
-                    vec_list = self.token_uid_list_2_vec_list(
-                        uid_list, self.token_uid.seq_no_uid)
+                    uid_list = self.token_list_2_tuid_list(token_list)
+                    vec_list = self.tuid_list_2_vec_list(
+                        uid_list, self.token_uid.seq_no_uid + 1)
                     tf_vec = self.calc_norm_tf_vector(vec_list)
                     if count <= ratio_of_train:
-                        train_label.append(category)
-                        train_vec.append(tf_vec)
+                        self.train_label.append(category_vec)
+                        self.train_vec.append(tf_vec)
                     else:
-                        predict_label.append(category)
-                        predict_vec.append(tf_vec)
+                        self.predict_label.append(category_vec)
+                        self.predict_vec.append(tf_vec)
 
                     if count >= 10:
                         count = 0
                     else:
                         count += 1
-        return np.array(train_label), np.array(train_vec), np.array(predict_label), np.array(predict_vec)
 
-    def token_2_uid(self, manuscript_tokens: list)-> list:
+    def token_list_2_tuid_list(self, manuscript_tokens: list)-> list:
         manuscript_token_uid_list = []
         for tok in manuscript_tokens:
             manuscript_token_uid_list.append(
                 self.token_uid.token_dic[str(tok)])
         return manuscript_token_uid_list
 
-    def token_uid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
+    def tuid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
         '''
          形態素に割り振られた連番のユニークIDから基底ベクトルを作成する。
         形態素の'Python'のユニークIDが「3」、次元数が「5」
@@ -102,12 +93,12 @@ class LearningData:
         '''
         vec_list = []
         for uid in token_uid_list:
-            vec = np.zeros(max_dim + 1)
+            vec = np.zeros(max_dim)
             vec[uid] = 1
             vec_list.append(vec)
         return vec_list
 
-    def calc_norm_tf_vector(self, manuscript_vecs: list) -> np.array:
+    def calc_norm_tf_vector(self, manuscript_vecs: list) -> list:
         '''
          1原稿分の形態素のベクトルの総和を求めて、TFベクトル(Term Frequency)を求める。
         総和したTFベクトルは、1原稿の単語数で割り算することで平準化する。
@@ -123,6 +114,17 @@ class LearningData:
                 total += vec
         total /= len(manuscript_vecs)
         return total
+
+
+def dump(dumpdata, filepath: str) -> None:
+    with open(filepath, mode='wb') as f:
+        pickle.dump(dumpdata, f)
+        f.flush()
+
+
+def load(filepath: str):
+    with open(filepath, mode='rb') as f:
+        return pickle.load(f)
 
 
 def tokenize(manuscript: str) -> list:
