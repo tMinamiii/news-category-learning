@@ -1,4 +1,5 @@
 from janome.tokenizer import Tokenizer
+from sklearn.decomposition import PCA
 import csv
 import numpy as np
 import pickle
@@ -39,7 +40,7 @@ class TokenUID:
 
 
 class LearningData:
-    def __init__(self, token_uid: TokenUID):
+    def __init__(self, token_uid: TokenUID, train_data=None, predict_data=None):
         self.token_uid = token_uid
         self.train_data = None
         self.predict_data = None
@@ -47,7 +48,6 @@ class LearningData:
     def make(self, ratio_of_train=10, wc_lower: int=200):
         train_data = []
         predict_data = []
-
         count = 1
         for csv_path in self.token_uid.loaded_csv_list:
             with open(csv_path, 'r') as f:
@@ -79,11 +79,16 @@ class LearningData:
         self.train_data = np.array(train_data)
         self.predict_data = np.array(predict_data)
 
+    def pca(self):
+        pca = PCA(n_components=20000)
+        pcaed = pca.fit(
+            self.train_data[:, 1].tolist()).components_
+        pca_list = [(l, v) for l, v in zip(self.train_data[:, 0], pcaed)]
+        self.train_data = np.array(pca_list)
+
     def token_list_2_tuid_list(self, manuscript_tokens: list)-> list:
-        manuscript_token_uid_list = []
-        for tok in manuscript_tokens:
-            manuscript_token_uid_list.append(
-                self.token_uid.token_dic[str(tok)])
+        manuscript_token_uid_list = [
+            self.token_uid.token_dic[str(tok)] for tok in manuscript_tokens]
         return manuscript_token_uid_list
 
     def tuid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
