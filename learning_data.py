@@ -66,13 +66,14 @@ class LearningData:
                     tf_vec = self.calc_norm_tf_vector(vec_list)
                     if count <= ratio_of_train:
                         if self.train_data is None:
-                            self.train_data = np.array((category_vec, tf_vec))
+                            self.train_data = np.array(
+                                [(category_vec, tf_vec)])
                         else:
                             self.train_data.append((category_vec, tf_vec))
                     else:
                         if self.train_data is None:
                             self.predict_data = np.array(
-                                (category_vec, tf_vec))
+                                [(category_vec, tf_vec)])
                         else:
                             self.predict_data.append((category_vec, tf_vec))
 
