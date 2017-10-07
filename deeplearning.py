@@ -5,7 +5,6 @@ import numpy as np
 #tuid = ld.TokenUID()
 tuid = ld.load('ldata/2017-10-07.tuid')
 td = ld.load('ldata/2017-10-07.td')
-pd = ld.load('ldata/2017-10-07.pd')
 np.random.shuffle(td)
 tdlen = len(td)
 boundary = int(tdlen / 10 * 9)

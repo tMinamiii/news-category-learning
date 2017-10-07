@@ -43,11 +43,9 @@ class LearningData:
     def __init__(self, token_uid: TokenUID, train_data=None, predict_data=None):
         self.token_uid = token_uid
         self.train_data = train_data
-        self.predict_data = predict_data
 
-    def make(self, ratio_of_train=10, wc_lower: int=200):
+    def make(self,  wc_lower: int=200):
         train_data = []
-        predict_data = []
         count = 1
         for csv_path in self.token_uid.loaded_csv_list:
             with open(csv_path, 'r') as f:
@@ -67,17 +65,13 @@ class LearningData:
                     vec_list = self.tuid_list_2_vec_list(
                         uid_list, self.token_uid.seq_no_uid + 1)
                     tf_vec = self.calc_norm_tf_vector(vec_list)
-                    if count <= ratio_of_train:
-                        train_data.append((category_vec, tf_vec))
-                    else:
-                        predict_data.append((category_vec, tf_vec))
+                    train_data.append((category_vec, tf_vec))
 
                     if count >= 10:
                         count = 0
                     else:
                         count += 1
         self.train_data = np.array(train_data)
-        self.predict_data = np.array(predict_data)
 
     def pca(self):
         pca = PCA(n_components=20000)
