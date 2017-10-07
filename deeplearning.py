@@ -9,7 +9,7 @@ np.random.shuffle(train_ld.train_data)
 np.random.shuffle(train_ld.predict_data)
 tuid = train_ld.token_uid
 vec_dim = tuid.seq_no_uid + 1
-num_units = 8
+num_units = 4
 num_categories = len(tuid.categories)
 train_label = train_ld.train_data[:, 0].tolist()
 train_data = train_ld.train_data[:, 1].tolist()
@@ -34,18 +34,18 @@ p = tf.nn.softmax(tf.matmul(hidden3, w0) + b0)
 
 t = tf.placeholder(tf.float32, [None, num_categories])
 loss = -1 * tf.reduce_sum(t * tf.log(p))
-train_step = tf.train.AdadeltaOptimizer(0.01).minimize(loss)
+train_step = tf.train.AdadeltaOptimizer(0.005).minimize(loss)
 correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-batch_size = 100
+batch_size = 300
 batch_count = 0
 i = 0
 data_length = len(train_data)
-for _ in range(20000):
+for _ in range(100000):
     i += 1
     batch_data = train_data[batch_count:batch_count + batch_size]
     batch_label = train_label[batch_count:batch_count + batch_size]
@@ -58,4 +58,4 @@ for _ in range(20000):
     if i % 100 == 0:
         loss_val, acc_val = sess.run([loss, accuracy], feed_dict={
                                      x: train_data, t: train_label})
-        print('Step: %d, Loss: %f, Accuracy: %f' % (1, loss_val, acc_val))
+        print('Step: %d, Loss: %f, Accuracy: %f' % (i, loss_val, acc_val))
