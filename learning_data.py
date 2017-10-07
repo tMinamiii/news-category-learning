@@ -42,8 +42,8 @@ class TokenUID:
 class LearningData:
     def __init__(self, token_uid: TokenUID, train_data=None, predict_data=None):
         self.token_uid = token_uid
-        self.train_data = None
-        self.predict_data = None
+        self.train_data = train_data
+        self.predict_data = predict_data
 
     def make(self, ratio_of_train=10, wc_lower: int=200):
         train_data = []
