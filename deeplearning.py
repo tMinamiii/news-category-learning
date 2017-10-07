@@ -1,17 +1,18 @@
 import tensorflow as tf
 import learning_data as ld
+import numpy as np
 
 #tuid = ld.TokenUID()
 # ld.load('tuid/2017-10-05.tuid')
-train_ld = ld.load('ldata/2017-10-06.ldata')
+train_ld = ld.load('ldata/2017-10-07.ldata')
 np.random.shuffle(train_ld.train_data)
 np.random.shuffle(train_ld.predict_data)
 tuid = train_ld.token_uid
 vec_dim = tuid.seq_no_uid + 1
-num_units = 3
+num_units = 8
 num_categories = len(tuid.categories)
-train_label = train_ld.train_data[:, 0]
-train_data = train_ld.train_data[:, 1]
+train_label = train_ld.train_data[:, 0].tolist()
+train_data = train_ld.train_data[:, 1].tolist()
 
 x = tf.placeholder(tf.float32, [None, vec_dim])
 
@@ -33,7 +34,7 @@ p = tf.nn.softmax(tf.matmul(hidden3, w0) + b0)
 
 t = tf.placeholder(tf.float32, [None, num_categories])
 loss = -1 * tf.reduce_sum(t * tf.log(p))
-train_step = tf.train.AdadeltaOptimizer(0.001).minimize(loss)
+train_step = tf.train.AdadeltaOptimizer(0.01).minimize(loss)
 correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -53,7 +54,7 @@ for _ in range(20000):
         batch_count %= batch_size
 
     sess.run(train_step, feed_dict={x: batch_data, t: batch_label})
-    # sess.run(train_step, feed_dict={x: train_data, t: train_label})
+    #sess.run(train_step, feed_dict={x: train_data, t: train_label})
     if i % 100 == 0:
         loss_val, acc_val = sess.run([loss, accuracy], feed_dict={
                                      x: train_data, t: train_label})
