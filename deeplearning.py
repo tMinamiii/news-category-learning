@@ -4,6 +4,8 @@ import learning_data as ld
 #tuid = ld.TokenUID()
 # ld.load('tuid/2017-10-05.tuid')
 train_ld = ld.load('ldata/2017-10-06.ldata')
+np.random.shuffle(train_ld.train_data)
+np.random.shuffle(train_ld.predict_data)
 tuid = train_ld.token_uid
 vec_dim = tuid.seq_no_uid + 1
 num_units = 3

@@ -41,10 +41,13 @@ class TokenUID:
 class LearningData:
     def __init__(self, token_uid: TokenUID):
         self.token_uid = token_uid
-        self.train_data = None
-        self.predict_data = None
+        self.train_data = []
+        self.predict_data = []
 
     def make(self, ratio_of_train=10, wc_lower: int=200):
+        train_data = []
+        predict_data = []
+
         count = 1
         for csv_path in self.token_uid.loaded_csv_list:
             with open(csv_path, 'r') as f:
@@ -65,24 +68,16 @@ class LearningData:
                         uid_list, self.token_uid.seq_no_uid + 1)
                     tf_vec = self.calc_norm_tf_vector(vec_list)
                     if count <= ratio_of_train:
-                        if self.train_data is None:
-                            self.train_data = np.array(
-                                [(category_vec, tf_vec)])
-                        else:
-                            self.train_data.append((category_vec, tf_vec))
+                        train_data.append((category_vec, tf_vec))
                     else:
-                        if self.train_data is None:
-                            self.predict_data = np.array(
-                                [(category_vec, tf_vec)])
-                        else:
-                            self.predict_data.append((category_vec, tf_vec))
+                        predict_data.append((category_vec, tf_vec))
 
                     if count >= 10:
                         count = 0
                     else:
                         count += 1
-        np.random.shuffle(self.train_data)
-        np.random.shuffle(self.predict_data)
+        self.train_data = np.array(train_data)
+        self.predict_data = np.array(predict_data)
 
     def token_list_2_tuid_list(self, manuscript_tokens: list)-> list:
         manuscript_token_uid_list = []
