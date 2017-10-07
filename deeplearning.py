@@ -3,8 +3,11 @@ import learning_data as ld
 import numpy as np
 
 #tuid = ld.TokenUID()
-# ld.load('tuid/2017-10-05.tuid')
-train_ld = ld.load('ldata/2017-10-07.ldata')
+tuid = ld.load('tuid/2017-10-07.tuid')
+td = ld.load('ldata/2017-10-07.td')
+pd = ld.load('ldata/2017-10-07.pd')
+train_ld = ld.LearningData(tuid, td, pd)
+train_ld.pca()
 np.random.shuffle(train_ld.train_data)
 np.random.shuffle(train_ld.predict_data)
 tuid = train_ld.token_uid

@@ -18,7 +18,8 @@ def dump_all_csv():
     ld.dump(tuid, 'ldata/' + output_name + '.tuid')
     ldata = ld.LearningData(tuid)
     ldata.make()
-    ld.dump(ldata, 'ldata/' + output_name + '.ldata')
+    ld.dump(ldata.train_data, 'ldata/' + output_name + '.td')
+    ld.dump(ldata.predict_data, 'ldata/' + output_name + '.pd')
 
 
 def update_tuid(prevfile):
