@@ -21,11 +21,13 @@ for path in csv_list:
         reader = csv.reader(f)
         for row in reader:
             all_news.append(row)
+print('all news loaded')
 random.shuffle(all_news)
-pca_news = all_news[0:1999]
+pca_news = all_news[0:1499]
 ldata = ld.LearningData()
 pca_data = ldata.make(tuid, pca_news)
-pca = ld.YN_PCA(pca_data)
+print('created training data for pca')
+pca = ld.YN_PCA(pca_data[:, 1].tolist())
 pca_ldata = ld.LearningData(pca)
 pca_data = None
 pca_news = None

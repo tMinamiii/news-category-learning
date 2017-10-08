@@ -40,9 +40,9 @@ class TokenUID:
 
 
 class YN_PCA:
-    def __init__(self, vecs, dim=20000):
+    def __init__(self, vecs: list, dim=20000):
         pca = PCA(dim)
-        self.components = pca.fit(vecs).components_
+        self.components = pca.fit(np.array(vecs)).components_
 
     def transform(self, vecs: list):
         vecs_bar = np.array([v - np.mean(v) for v in np.array(vecs).T]).T
