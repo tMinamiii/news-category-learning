@@ -4,6 +4,7 @@ import csv
 import numpy as np
 import pickle
 import re
+import mojimoji
 
 
 class TokenUID:
@@ -39,51 +40,41 @@ class TokenUID:
                             self.seq_no_uid += 1
 
 
+class YN_PCA:
+    def __init__(self, vecs, dim=20000):
+        pca = PCA(dim)
+        self.components = pca.fit(vecs).components_
+
+    def transform(self, vecs: list):
+        vecs_bar = np.array([v - np.mean(v) for v in np.array(vecs).T]).T
+        return np.dot(vecs_bar, self.components.T).tolist()
+
+
 class LearningData:
-    def __init__(self, token_uid: TokenUID, train_data=None, predict_data=None):
-        self.token_uid = token_uid
-        self.train_data = train_data
+    def __init__(self, pca: YN_PCA = None):
+        self.pca = pca
 
-    def make(self,  wc_lower: int=200):
+    def make(self, tuid: TokenUID, news: list, wc_lower: int=200):
         train_data = []
-        count = 1
-        for csv_path in self.token_uid.loaded_csv_list:
-            with open(csv_path, 'r') as f:
-                reader = csv.reader(f)
-                for line in reader:
-                    wc = int(line[2])
-                    if wc < wc_lower:
-                        continue
-                    category = line[0]
-                    category_vec = np.zeros(
-                        len(self.token_uid.categories))
-                    cat_list = list(self.token_uid.categories)
-                    category_vec[cat_list.index(category)] += 1
-                    manuscript = line[3]
-                    token_list = tokenize(manuscript)
-                    uid_list = self.token_list_2_tuid_list(token_list)
-                    vec_list = self.tuid_list_2_vec_list(
-                        uid_list, self.token_uid.seq_no_uid + 1)
-                    tf_vec = self.calc_norm_tf_vector(vec_list)
-                    train_data.append((category_vec, tf_vec))
+        for line in news:
+            wc = int(line[2])
+            if wc < wc_lower:
+                continue
+            category = line[0]
+            category_vec = np.zeros(len(tuid.categories))
+            cat_list = list(tuid.categories)
+            category_vec[cat_list.index(category)] += 1
+            manuscript = line[3]
+            tokens = tokenize(manuscript)
+            tuid_list = [tuid.token_dic[str(tok)] for tok in tokens]
+            vec_list = self.tuid_list_2_vec_list(
+                tuid_list, tuid.seq_no_uid + 1)
+            tf_vec = self.calc_norm_tf_vector(vec_list)
+            if not self.pca is None:
+                tf_vec = self.pca.transform(tf_vec)
+            train_data.append((category_vec, tf_vec))
 
-                    if count >= 10:
-                        count = 0
-                    else:
-                        count += 1
-        self.train_data = np.array(train_data)
-
-    def pca(self):
-        pca = PCA(n_components=20000)
-        pcaed = pca.fit(
-            self.train_data[:, 1].tolist()).components_
-        pca_list = [(l, v) for l, v in zip(self.train_data[:, 0], pcaed)]
-        self.train_data = np.array(pca_list)
-
-    def token_list_2_tuid_list(self, manuscript_tokens: list)-> list:
-        manuscript_token_uid_list = [
-            self.token_uid.token_dic[str(tok)] for tok in manuscript_tokens]
-        return manuscript_token_uid_list
+        return np.array(train_data)
 
     def tuid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
         '''
@@ -130,6 +121,8 @@ def load(filepath: str):
 def tokenize(manuscript: str) -> list:
     token_list = []
     tokenizer = Tokenizer()
+    manuscript = mojimoji.zen_to_han(
+        manuscript, ascii=True, digit=True, kana=False)
     manuscript = re.sub(r'[0-9\@\"\,\.]+', '', manuscript)
     manuscript = re.sub(
         r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
