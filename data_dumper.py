@@ -16,23 +16,22 @@ tuid.update(csv_list)
 
 # dump_all_csv()
 all_news = []
-for csv_path in csv_list:
-    with open(csv_path, 'r') as f:
+for path in csv_list:
+    with open(path, 'r') as f:
         reader = csv.reader(f)
         for row in reader:
             all_news.append(row)
 all_news = random.shuffle(all_news)
-pca_news = all_news[0:999]
+pca_news = all_news[0:1999]
 ldata = ld.LearningData()
 pca_data = ldata.make(tuid, pca_news)
 pca = ld.YN_PCA(pca_data)
 pca_ldata = ld.LearningData(pca)
 pca_data = None
+pca_news = None
 
 
 def dump_all_csv():
-    tuid = ld.TokenUID()
-    tuid.update(csv_list)
     ld.dump(tuid, 'ldata/' + output_name + '.tuid')
     #td = ldata.make(tuid, all_news)
     #ld.dump(td, 'ldata/' + output_name + '.td')
@@ -41,21 +40,22 @@ def dump_all_csv():
 
 
 def update_tuid(prevfile):
-    tuid = ld.load(prevfile)
+    prev_tuid = ld.load(prevfile)
     loaded_date = datetime.datetime.strftime(prevfile, 'tuid/%Y-%m-%d.tuid')
+    newly_added_csv = []
     for cate in categories:
         date_format = 'YN_' + cate + '_%Y-%m-%d-%H-%M-%S.csv'
         dirname = 'csv/%s/' % (cate)
         csvs = glob.glob(dirname + '*.csv')
-        for c in csvs:
-            filename = c.replace(dirname, '')
+        for csv_path in csvs:
+            filename = csv_path.replace(dirname, '')
             scrap_date = datetime.datetime.strptime(filename, date_format)
             if loaded_date < scrap_date:
-                csv_list.extend(c)
-    tuid.update(csv_list)
+                newly_added_csv.extend(csv_path)
+    prev_tuid.update(csv_list)
     ld.dump(tuid, 'tuid/' + output_name + '.tuid')
     td = ldata.make(tuid, all_news)
     ld.dump(td, 'ldata/' + output_name + '.td')
 
 
-dump_all_csv
+dump_all_csv()
