@@ -21,7 +21,7 @@ for path in csv_list:
         reader = csv.reader(f)
         for row in reader:
             all_news.append(row)
-all_news = random.shuffle(all_news)
+random.shuffle(all_news)
 pca_news = all_news[0:1999]
 ldata = ld.LearningData()
 pca_data = ldata.make(tuid, pca_news)
