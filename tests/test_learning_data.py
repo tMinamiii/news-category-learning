@@ -44,12 +44,7 @@ class TestLearningData(unittest.TestCase):
     csv_list = ['tests/test2.csv']
     tuid = ld.TokenUID()
     tuid.update(csv_list)
-    ldata = ld.LearningData(tuid)
-
-    def test_token_2_uid(self):
-        tokens = ['プログラミング', 'Python', '言語']
-        uids = self.ldata.token_list_2_tuid_list(tokens)
-        self.assertEqual(uids, [2, 0, 3])
+    ldata = ld.LearningData()
 
     def test_token_uid_list_2_vec_list(self):
         token_uids = [2, 0, 4, 10, 3]
