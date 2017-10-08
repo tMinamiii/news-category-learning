@@ -4,7 +4,6 @@ import csv
 import numpy as np
 import pickle
 import re
-import mojimoji
 
 
 class TokenUID:
@@ -121,8 +120,6 @@ def load(filepath: str):
 def tokenize(manuscript: str) -> list:
     token_list = []
     tokenizer = Tokenizer()
-    manuscript = mojimoji.zen_to_han(
-        manuscript, ascii=True, digit=True, kana=False)
     manuscript = re.sub(r'[0-9\@\"\,\.]+', '', manuscript)
     manuscript = re.sub(
         r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
