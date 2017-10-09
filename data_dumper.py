@@ -41,7 +41,7 @@ def dump_all_csv():
     td = svd_ldata.make(tuid, all_news)
     print('dumping train data...')
     #ld.dump(td, 'ldata/' + output_name + '.td')
-    ld.dump(td, 'ldata/' + output_name + '.pcatd')
+    ld.dump(td, 'ldata/' + output_name + '.svdtd')
 
 
 dump_all_csv()
