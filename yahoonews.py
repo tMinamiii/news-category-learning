@@ -16,7 +16,13 @@ class NewsChunk:
 class YahooNewsScraper:
     def read_manuscript(self, news_url) -> str:
         # readしてHTMLデータをすべてDLしてしまう
-        html = req.urlopen(news_url).read()
+        resp = req.urlopen(news_url)
+        code = resp.getcode()
+        if code == 302:
+            resp = req.urlopen(resp.geturl())
+            html = resp.read()
+        else:
+            html = resp.read()
         soup = BeautifulSoup(html, 'lxml')
         paragraphs = soup.select('div.paragraph')
         manuscript = ''
