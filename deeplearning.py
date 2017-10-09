@@ -13,7 +13,7 @@ print(len(pd))
 print(len(td))
 #vec_dim = tuid.seq_no_uid + 1
 vec_dim = len(td[:, 1][0])
-num_units = 4092
+num_units = 4096
 num_categories = len(tuid.categories)
 predict_label = pd[:, 0].tolist()
 predict_data = pd[:, 1].tolist()
@@ -45,7 +45,7 @@ p = tf.nn.softmax(tf.matmul(hidden2, w0) + b0)
 
 t = tf.placeholder(tf.float32, [None, num_categories])
 loss = -1 * tf.reduce_sum(t * tf.log(p))
-train_step = tf.train.AdadeltaOptimizer(0.01).minimize(loss)
+train_step = tf.train.AdadeltaOptimizer(0.025).minimize(loss)
 correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -54,7 +54,7 @@ sess.run(tf.global_variables_initializer())
 
 batch_size = 200
 i = 0
-for _ in range(8000):
+for _ in range(20000):
     i += 1
     np.random.shuffle(td)
     batch_label = td[:batch_size, 0].tolist()
