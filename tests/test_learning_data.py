@@ -59,7 +59,7 @@ class TestLearningData(unittest.TestCase):
         token_uids = [2, 0, 2, 10, 3, 0, 2]
         vecs = self.ldata.tuid_list_2_vec_list(
             token_uids, self.tuid.seq_no_uid)
-        tf = self.ldata.calc_norm_tf_vector(vecs)
+        tf = self.ldata.calc_tf_vector(vecs)
         elem0 = 2.0 / len(token_uids)
         elem2 = 3.0 / len(token_uids)
         elem10 = 1.0 / len(token_uids)
