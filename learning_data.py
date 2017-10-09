@@ -49,9 +49,9 @@ class YN_SVD:
 
 class LearningData:
     def __init__(self, pca: YN_SVD = None):
-        self.pca = pca
+        self.svd = pca
 
-    def make(self, tuid: TokenUID, news: list, wc_lower: int = 0):
+    def make(self, tuid: TokenUID, news: list, wc_lower: int = 100):
         train_data = []
         for line in news:
             wc = int(line[2])
@@ -63,12 +63,14 @@ class LearningData:
             category_vec[cat_list.index(category)] += 1
             manuscript = line[3]
             tokens = tokenize(manuscript)
+            if len(tokens) == 0:
+                continue
             tuid_list = [tuid.token_dic[str(tok)] for tok in tokens]
             vec_list = self.tuid_list_2_vec_list(
                 tuid_list, tuid.seq_no_uid + 1)
             tf_vec = self.calc_tf_vector(vec_list).tolist()
-            if not self.pca is None:
-                tf_vec = self.pca.transform(tf_vec).tolist()
+            if not self.svd is None:
+                tf_vec = self.svd.transform(tf_vec).tolist()
             train_data.append((category_vec, tf_vec))
 
         return np.array(train_data)
@@ -96,6 +98,8 @@ class LearningData:
                 total = vec
             else:
                 total += vec
+        if total is None:
+            return None
         total /= len(manuscript_vecs)
         return total
 
