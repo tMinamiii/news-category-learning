@@ -1,4 +1,4 @@
-import yahoonews
+import scrape.yahoonews as yn
 import datetime
 import csv
 import os
@@ -13,7 +13,7 @@ def dump_csv(filename, chunk_list: list):
 
 
 def scrape(rss_dic: dict, date: datetime) -> list:
-    scraper = yahoonews.YahooNewsScraper()
+    scraper = yn.YahooNewsScraper()
     chunk_dic = {}
     for url in rss_dic.values():
         #result = scraper.scrape_news(url, sleep=2)
@@ -39,7 +39,7 @@ def collect(rss_dic: dict, current_time: datetime):
 
 
 if __name__ == '__main__':
-    rss = yahoonews.YahooRSSScraper()
+    rss = yn.YahooRSSScraper()
 
     jp = rss.scrape_jp_newslist()
     world = rss.scrape_world_newslist()
