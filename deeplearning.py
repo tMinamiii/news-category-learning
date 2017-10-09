@@ -11,11 +11,10 @@ pd = td[boundary:tdlen - 1]
 td = td[0:boundary - 1]
 print(len(pd))
 print(len(td))
-vec_dim = tuid.seq_no_uid + 1
-num_units = 2048
+#vec_dim = tuid.seq_no_uid + 1
+vec_dim = len(td[:, 1][0])
+num_units = 4092
 num_categories = len(tuid.categories)
-train_label = td[:, 0].tolist()
-train_data = td[:, 1].tolist()
 predict_label = pd[:, 0].tolist()
 predict_data = pd[:, 1].tolist()
 
@@ -46,24 +45,20 @@ p = tf.nn.softmax(tf.matmul(hidden2, w0) + b0)
 
 t = tf.placeholder(tf.float32, [None, num_categories])
 loss = -1 * tf.reduce_sum(t * tf.log(p))
-train_step = tf.train.AdadeltaOptimizer(0.025).minimize(loss)
+train_step = tf.train.AdadeltaOptimizer(0.01).minimize(loss)
 correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-batch_size = 100
-batch_count = 0
+batch_size = 200
 i = 0
-data_length = len(train_data)
 for _ in range(8000):
     i += 1
-    batch_data = train_data[batch_count:batch_count + batch_size]
-    batch_label = train_label[batch_count:batch_count + batch_size]
-    batch_count += batch_size
-    if batch_count >= data_length:
-        batch_count %= batch_size
+    np.random.shuffle(td)
+    batch_label = td[:batch_size, 0].tolist()
+    batch_data = td[:batch_size, 1].tolist()
 
     sess.run(train_step, feed_dict={
              x: batch_data, t: batch_label})
