@@ -2,9 +2,8 @@ import tensorflow as tf
 import learning_data as ld
 import numpy as np
 
-#tuid = ld.TokenUID()
-tuid = ld.load('ldata/2017-10-07.tuid')
-td = ld.load('ldata/2017-10-07.td')
+tuid = ld.load('ldata/2017-10-09.tuid')
+td = ld.load('ldata/2017-10-09.svdtd')
 np.random.shuffle(td)
 tdlen = len(td)
 boundary = int(tdlen / 10 * 8)
@@ -12,8 +11,6 @@ pd = td[boundary:tdlen - 1]
 td = td[0:boundary - 1]
 print(len(pd))
 print(len(td))
-#train_ld = ld.LearningData(tuid, td)
-# train_ld.pca()
 vec_dim = tuid.seq_no_uid + 1
 num_units = 2048
 num_categories = len(tuid.categories)
