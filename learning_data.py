@@ -1,9 +1,9 @@
 from janome.tokenizer import Tokenizer
-from sklearn.decomposition import PCA
 import csv
 import numpy as np
 import pickle
 import re
+import scipy.sparse.linalg
 
 
 class TokenUID:
@@ -39,21 +39,19 @@ class TokenUID:
                             self.seq_no_uid += 1
 
 
-class YN_PCA:
-    def __init__(self, vecs: list, dim=20000):
-        pca = PCA(dim)
-        self.components = pca.fit(np.array(vecs)).components_
+class YN_SVD:
+    def __init__(self, vecs: list):
+        _, _, self.V = scipy.sparse.linalg.svds(vecs)
 
-    def transform(self, vecs: list):
-        vecs_bar = np.array([v - np.mean(v) for v in np.array(vecs).T]).T
-        return np.dot(vecs_bar, self.components.T).tolist()
+    def transform(self, vecs: list, dim=20000):
+        return np.dot(np.array(vecs), self.V[0:dim].T)
 
 
 class LearningData:
-    def __init__(self, pca: YN_PCA = None):
+    def __init__(self, pca: YN_SVD = None):
         self.pca = pca
 
-    def make(self, tuid: TokenUID, news: list, wc_lower: int=200):
+    def make(self, tuid: TokenUID, news: list, wc_lower: int = 200):
         train_data = []
         for line in news:
             wc = int(line[2])
@@ -68,7 +66,7 @@ class LearningData:
             tuid_list = [tuid.token_dic[str(tok)] for tok in tokens]
             vec_list = self.tuid_list_2_vec_list(
                 tuid_list, tuid.seq_no_uid + 1)
-            tf_vec = self.calc_norm_tf_vector(vec_list)
+            tf_vec = self.calc_tf_vector(vec_list).tolist()
             if not self.pca is None:
                 tf_vec = self.pca.transform(tf_vec)
             train_data.append((category_vec, tf_vec))
@@ -88,14 +86,10 @@ class LearningData:
             vec_list.append(vec)
         return vec_list
 
-    def calc_norm_tf_vector(self, manuscript_vecs: list) -> list:
+    def calc_tf_vector(self, manuscript_vecs: list) -> list:
         '''
          1原稿分の形態素のベクトルの総和を求めて、TFベクトル(Term Frequency)を求める。
-        総和したTFベクトルは、1原稿の単語数で割り算することで平準化する。
-        平準化することで、長文にある1単語より、短文の1単語のほうが特徴に重みが付く。
-        ※ただし、平準化は実験的な手法なので、もっといい方法があれば変更する
         '''
-        # total = np.zeros(self.td.seq_no_uid)
         total = None
         for vec in manuscript_vecs:
             if total is None:
