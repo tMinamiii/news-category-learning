@@ -51,7 +51,7 @@ class LearningData:
     def __init__(self, pca: YN_SVD = None):
         self.pca = pca
 
-    def make(self, tuid: TokenUID, news: list, wc_lower: int = 200):
+    def make(self, tuid: TokenUID, news: list, wc_lower: int = 0):
         train_data = []
         for line in news:
             wc = int(line[2])
