@@ -23,7 +23,7 @@ for path in csv_list:
             all_news.append(row)
 print('all news loaded')
 random.shuffle(all_news)
-svd_news = all_news[0:1000]
+svd_news = all_news[0:2000]
 ldata = ld.LearningData()
 svd_data = ldata.make(tuid, svd_news)
 print('created training data for svd')

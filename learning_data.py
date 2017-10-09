@@ -41,10 +41,10 @@ class TokenUID:
 
 class YN_SVD:
     def __init__(self, vecs: list):
-        _, _, self.V = scipy.sparse.linalg.svds(vecs)
+        _, _, self.V = scipy.sparse.linalg.svds(vecs, k=len(vecs) - 1)
 
-    def transform(self, vecs: list, dim=20000):
-        return np.dot(np.array(vecs), self.V[0:dim].T)
+    def transform(self, vecs: list):
+        return np.dot(np.array(vecs), self.V.T)
 
 
 class LearningData:
@@ -68,7 +68,7 @@ class LearningData:
                 tuid_list, tuid.seq_no_uid + 1)
             tf_vec = self.calc_tf_vector(vec_list).tolist()
             if not self.pca is None:
-                tf_vec = self.pca.transform(tf_vec)
+                tf_vec = self.pca.transform(tf_vec).tolist()
             train_data.append((category_vec, tf_vec))
 
         return np.array(train_data)
