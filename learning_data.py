@@ -58,8 +58,8 @@ class SVD(DimensionReduction):
 
 
 class LearningData:
-    def __init__(self, pca: SVD = None):
-        self.svd = pca
+    def __init__(self, dim_red: DimensionReduction = None):
+        self.dim_red = dim_red
 
     def make(self, tuid: TokenUID, news: list, manuscript_min_length: int = 100):
         train_data = []
@@ -79,8 +79,8 @@ class LearningData:
             vec_list = self.tuid_list_2_vec_list(
                 tuid_list, tuid.seq_no_uid + 1)
             tf_vec = self.calc_tf_vector(vec_list).tolist()
-            if not self.svd is None:
-                tf_vec = self.svd.transform(tf_vec).tolist()
+            if not self.dim_red is None:
+                tf_vec = self.dim_red.transform(tf_vec).tolist()
             train_data.append((category_vec, tf_vec))
 
         return np.array(train_data)
