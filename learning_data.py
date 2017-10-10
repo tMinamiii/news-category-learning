@@ -52,11 +52,11 @@ class LearningData:
     def __init__(self, pca: YN_SVD = None):
         self.svd = pca
 
-    def make(self, tuid: TokenUID, news: list, wc_lower: int = 100):
+    def make(self, tuid: TokenUID, news: list, manuscript_min_length: int = 100):
         train_data = []
         for line in news:
             wc = int(line[2])
-            if wc < wc_lower:
+            if wc < manuscript_min_length:
                 continue
             category = line[0]
             category_vec = np.zeros(len(tuid.categories))
