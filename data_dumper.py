@@ -5,7 +5,7 @@ import csv
 import random
 
 
-MANUSCRIPT_MINIMUM_LENGTH = 400
+MANUSCRIPT_MINIMUM_LENGTH = 300
 SVD_DIMENSION = 2000
 CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
