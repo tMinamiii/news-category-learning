@@ -94,11 +94,11 @@ class LearningData:
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
         '''
-        tuid_list = [self.tuid.token_dic[str(tok)] for tok in tokens]
         tf_vec = np.zeros(max_dim)
-        for uid in tuid_list:
+        for tok in tokens:
+            uid = self.tuid.token_dic[str(tok)]
             tf_vec[uid] += 1
-        tf_vec /= len(tuid_list)
+        tf_vec /= len(tokens)
         return tf_vec
 
 
