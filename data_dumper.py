@@ -27,37 +27,43 @@ def load_all_csvs(csv_list: list) -> list:
             reader = csv.reader(f)
             for row in reader:
                 all_news.append(row)
+    print('all news loaded ' + str(len(all_news)))
     random.shuffle(all_news)
-    print('all news loaded')
     return all_news
 
 
 def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SVD:
     svd_news = all_news[0:SVD_DIMENSION]
-    ldata = ld.LearningData()
-    svd_data = ldata.make(tuid, svd_news, MANUSCRIPT_MINIMUM_LENGTH)
+    ldata = ld.LearningData(tuid)
+    svd_data = ldata.make(svd_news, MANUSCRIPT_MINIMUM_LENGTH)
     print('created training data for svd')
     return ld.SVD(svd_data[:, 1].tolist())
 
 
-def dump_all_csv(svd_ldata: ld.LearningData, all_news: list):
+def dump_all_csv(tuid: ld.TokenUID,
+                 svd_ldata: ld.LearningData, all_news: list):
+
     current_time = datetime.datetime.now()
     output_name = current_time.strftime('%Y-%m-%d')
     print('dumping tuid data...')
     ld.dump(tuid, 'ldata/' + output_name + '.tuid')
     print('making train data...')
     # td = ldata.make(tuid, all_news)
-    td = svd_ldata.make(tuid, all_news, MANUSCRIPT_MINIMUM_LENGTH)
+    td = svd_ldata.make(all_news, MANUSCRIPT_MINIMUM_LENGTH)
     print('dumping train data...')
     # ld.dump(td, 'ldata/' + output_name + '.td')
     ld.dump(td, 'ldata/' + output_name + '.svdtd')
 
 
-if __name__ == '__main__':
+def main():
     csv_list = find_all_csvs()
     all_news = load_all_csvs(csv_list)
     tuid = ld.TokenUID()
     tuid.update(csv_list)
     svd = calc_svd(tuid, all_news)
-    svd_ldata = ld.LearningData(svd)
-    dump_all_csv(svd_ldata, all_news)
+    svd_ldata = ld.LearningData(tuid, dim_red=svd)
+    dump_all_csv(tuid, svd_ldata, all_news)
+
+
+if __name__ == '__main__':
+    main()

@@ -28,13 +28,13 @@ class TokenUID:
                 for row in reader:
                     if len(row) != 4:
                         continue
-                    self.categories.add(row[0])
                     manuscript = row[3]
                     try:
                         token_list = tokenize(manuscript)
                     except IndexError:
-                        print(row)
-
+                        print(manuscript)
+                        continue
+                    self.categories.add(row[0])
                     for tok in token_list:
                         if tok not in self.token_dic:
                             self.token_dic[tok] = self.seq_no_uid
@@ -58,60 +58,48 @@ class SVD(DimensionReduction):
 
 
 class LearningData:
-    def __init__(self, dim_red: DimensionReduction = None):
+    def __init__(self, tuid: TokenUID, dim_red: DimensionReduction = None):
+        self.tuid = tuid
         self.dim_red = dim_red
 
-    def make(self, tuid: TokenUID, news: list, manuscript_min_len: int = 100):
+    def make(self, news: list, manuscript_min_len: int = 100):
         train_data = []
+        cat_list = list(self.tuid.categories)
+        cat_len = len(self.tuid.categories)
+        max_dim = self.tuid.seq_no_uid + 1
         for line in news:
             wc = int(line[2])
             if wc < manuscript_min_len:
                 continue
             category = line[0]
-            category_vec = np.zeros(len(tuid.categories))
-            cat_list = list(tuid.categories)
-            category_vec[cat_list.index(category)] += 1
+            category_vec = np.zeros(cat_len)
+            category_vec[cat_list.index(category)] = 1
             manuscript = line[3]
-            tokens = tokenize(manuscript)
-            if len(tokens) == 0:
+            try:
+                tokens = tokenize(manuscript)
+            except IndexError:
                 continue
-            tuid_list = [tuid.token_dic[str(tok)] for tok in tokens]
-            vec_list = self.tuid_list_2_vec_list(
-                tuid_list, tuid.seq_no_uid + 1)
-            tf_vec = self.calc_tf_vector(vec_list).tolist()
+            if tokens is None:
+                continue
+            tf_vec = self.calc_tf_vec(
+                tokens, max_dim).tolist()
             if self.dim_red is not None:
                 tf_vec = self.dim_red.transform(tf_vec).tolist()
             train_data.append((category_vec, tf_vec))
 
         return np.array(train_data)
 
-    def tuid_list_2_vec_list(self, token_uid_list: list, max_dim: int) -> list:
+    def calc_tf_vec(self, tokens: list, max_dim: int) -> list:
         '''
-         形態素に割り振られた連番のユニークIDから基底ベクトルを作成する。
-        形態素の'Python'のユニークIDが「3」、次元数が「5」
-        のときは、[0, 0, 0, 1, 0] というベクトルになる
+         素性に割り振られた連番のユニークIDをもとに
+        TFベクトル(Term Frequency)を求める。
         '''
-        vec_list = []
-        for uid in token_uid_list:
-            vec = np.zeros(max_dim)
-            vec[uid] = 1
-            vec_list.append(vec)
-        return vec_list
-
-    def calc_tf_vector(self, manuscript_vecs: list) -> list:
-        '''
-         1原稿分の形態素のベクトルの総和を求めて、TFベクトル(Term Frequency)を求める。
-        '''
-        total = None
-        for vec in manuscript_vecs:
-            if total is None:
-                total = vec
-            else:
-                total += vec
-        if total is None:
-            return None
-        total /= len(manuscript_vecs)
-        return total
+        tuid_list = [self.tuid.token_dic[str(tok)] for tok in tokens]
+        tf_vec = np.zeros(max_dim)
+        for uid in tuid_list:
+            tf_vec[uid] += 1
+        tf_vec /= len(tuid_list)
+        return tf_vec
 
 
 def dump(dumpdata, filepath: str) -> None:
@@ -128,13 +116,16 @@ def load(filepath: str):
 def tokenize(manuscript: str) -> list:
     token_list = []
     tokenizer = Tokenizer()
-    manuscript = re.sub(r'[０-９0-9\@\"\,\.]+', '', manuscript)
+    # 英文を取り除く（日本語の中の英字はそのまま）
+    manuscript = re.sub(r'[0-9]', '、', manuscript)
+    manuscript = re.sub(r'[a-zA-Z]+[ \,\.:;\-\+?!]', '', manuscript)
+    manuscript = re.sub(r'[\@\"\,\.]+', '', manuscript)
     manuscript = re.sub(
         r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
     tokens = tokenizer.tokenize(manuscript)
     for tok in tokens:
         ps = tok.part_of_speech.split(',')[0]
-        if ps in not ['名詞', '動詞', '形容詞']:
+        if ps not in ['名詞', '動詞', '形容詞']:
             continue
         # 原形があれば原形をリストに入れる
         w = tok.base_form
