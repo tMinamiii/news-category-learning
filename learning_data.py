@@ -4,6 +4,7 @@ import numpy as np
 import pickle
 import re
 import scipy.sparse.linalg
+import mojimoji
 
 
 class TokenUID:
@@ -118,7 +119,7 @@ def load(filepath: str):
 def tokenize(manuscript: str) -> list:
     token_list = []
     tokenizer = Tokenizer()
-    manuscript = re.sub(r'[0-9\@\"\,\.]+', '', manuscript)
+    manuscript = re.sub(r'[０-９0-9\@\"\,\.]+', '', manuscript)
     manuscript = re.sub(
         r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '', manuscript)
     tokens = tokenizer.tokenize(manuscript)
@@ -133,5 +134,6 @@ def tokenize(manuscript: str) -> list:
             w = tok.surface
         if w == '' or w == '\n':
             continue
-        token_list.append(w)
+        lower_w = mojimoji.zen_to_han(w, kana=False)
+        token_list.append(lower_w)
     return token_list
