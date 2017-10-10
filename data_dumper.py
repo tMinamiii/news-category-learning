@@ -32,12 +32,12 @@ def load_all_csvs(csv_list: list) -> list:
     return all_news
 
 
-def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.YN_SVD:
+def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SVD:
     svd_news = all_news[0:SVD_DIMENSION]
     ldata = ld.LearningData()
     svd_data = ldata.make(tuid, svd_news, MANUSCRIPT_MINIMUM_LENGTH)
     print('created training data for svd')
-    return ld.YN_SVD(svd_data[:, 1].tolist())
+    return ld.SVD(svd_data[:, 1].tolist())
 
 
 def dump_all_csv(svd_ldata: ld.LearningData, all_news: list):

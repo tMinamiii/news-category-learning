@@ -5,6 +5,7 @@ import pickle
 import re
 import scipy.sparse.linalg
 import mojimoji
+from abc import ABCMeta, abstractmethod
 
 
 class TokenUID:
@@ -40,7 +41,15 @@ class TokenUID:
                             self.seq_no_uid += 1
 
 
-class YN_SVD:
+class DimensionReduction:
+    __metaclass__ = ABCMeta
+
+    @abstractmethod
+    def transform(self, vecs: list):
+        pass
+
+
+class SVD(DimensionReduction):
     def __init__(self, vecs: list):
         _, _, self.V = scipy.sparse.linalg.svds(vecs, k=len(vecs) - 1)
 
@@ -49,7 +58,7 @@ class YN_SVD:
 
 
 class LearningData:
-    def __init__(self, pca: YN_SVD = None):
+    def __init__(self, pca: SVD = None):
         self.svd = pca
 
     def make(self, tuid: TokenUID, news: list, manuscript_min_length: int = 100):
