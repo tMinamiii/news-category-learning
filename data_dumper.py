@@ -46,10 +46,10 @@ def dump_all_csv(svd_ldata: ld.LearningData, all_news: list):
     print('dumping tuid data...')
     ld.dump(tuid, 'ldata/' + output_name + '.tuid')
     print('making train data...')
-    #td = ldata.make(tuid, all_news)
+    # td = ldata.make(tuid, all_news)
     td = svd_ldata.make(tuid, all_news, MANUSCRIPT_MINIMUM_LENGTH)
     print('dumping train data...')
-    #ld.dump(td, 'ldata/' + output_name + '.td')
+    # ld.dump(td, 'ldata/' + output_name + '.td')
     ld.dump(td, 'ldata/' + output_name + '.svdtd')
 
 

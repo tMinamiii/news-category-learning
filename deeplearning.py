@@ -11,7 +11,7 @@ pd = td[boundary:tdlen - 1]
 td = td[0:boundary - 1]
 print(len(pd))
 print(len(td))
-#vec_dim = tuid.seq_no_uid + 1
+# vec_dim = tuid.seq_no_uid + 1
 vec_dim = len(td[:, 1][0])
 num_units = 8192
 num_categories = len(tuid.categories)
@@ -62,7 +62,7 @@ for _ in range(20000):
 
     sess.run(train_step, feed_dict={
              x: batch_data, t: batch_label})
-    #sess.run(train_step, feed_dict={x: train_data, t: train_label})
+    # sess.run(train_step, feed_dict={x: train_data, t: train_label})
     if i % 10 == 0:
         loss_val, acc_val = sess.run([loss, accuracy], feed_dict={
                                      x: predict_data, t: predict_label})

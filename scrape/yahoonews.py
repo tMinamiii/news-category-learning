@@ -29,7 +29,7 @@ class YahooNewsScraper:
         for paragraph in paragraphs:
             try:
                 heading = paragraph.select_one('div.ynDetailHeading > em')
-                if not heading == None:
+                if heading is not None:
                     manuscript += heading.string.strip(' 　')
                 detail_txt = paragraph.select_one('p.ynDetailText')
                 for con in detail_txt.contents:
@@ -48,7 +48,7 @@ class YahooNewsScraper:
         items = root.iter('item')
         news_dic = {}
         for item in items:
-            if not date is None:
+            if date is not None:
                 pubdate_str = item.find('pubDate').text.strip()
                 date_format = '%a, %d %b %Y %H:%M:%S %z'
                 pubdate = datetime.datetime.strptime(pubdate_str, date_format)
@@ -80,8 +80,11 @@ class YahooRSSScraper:
                 # print(area)
                 titles = area.select('div.ymuiHeaderBGLight > h4.ymuiTitle')
                 containers = area.select('div.ymuiContainer')
-        # news_titles = {'国内': 'JP', '国際': 'World', '経済': 'Economic', 'エンタメ': 'Entertaiment',
-        #               'スポーツ': 'Sports', 'IT・科学': 'Science', 'ライフ': 'Life', '地域': 'JPLocal'}
+                '''
+                {'国内': 'JP', '国際': 'World', '経済': 'Economic',
+                 'エンタメ': 'Entertaiment', 'スポーツ': 'Sports',
+                 'IT・科学': 'Science', 'ライフ': 'Life', '地域': 'JPLocal'}
+                '''
         for t_ml, con in zip(titles, containers):
             title = t_ml.contents[0]
             links = con.select('ul.ymuiList > li.ymuiArrow > dl')

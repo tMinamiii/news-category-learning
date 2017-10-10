@@ -36,7 +36,7 @@ class TokenUID:
                         print(row)
 
                     for tok in token_list:
-                        if not tok in self.token_dic:
+                        if tok not in self.token_dic:
                             self.token_dic[tok] = self.seq_no_uid
                             self.seq_no_uid += 1
 
@@ -61,11 +61,11 @@ class LearningData:
     def __init__(self, dim_red: DimensionReduction = None):
         self.dim_red = dim_red
 
-    def make(self, tuid: TokenUID, news: list, manuscript_min_length: int = 100):
+    def make(self, tuid: TokenUID, news: list, manuscript_min_len: int = 100):
         train_data = []
         for line in news:
             wc = int(line[2])
-            if wc < manuscript_min_length:
+            if wc < manuscript_min_len:
                 continue
             category = line[0]
             category_vec = np.zeros(len(tuid.categories))
@@ -79,7 +79,7 @@ class LearningData:
             vec_list = self.tuid_list_2_vec_list(
                 tuid_list, tuid.seq_no_uid + 1)
             tf_vec = self.calc_tf_vector(vec_list).tolist()
-            if not self.dim_red is None:
+            if self.dim_red is not None:
                 tf_vec = self.dim_red.transform(tf_vec).tolist()
             train_data.append((category_vec, tf_vec))
 
@@ -134,7 +134,7 @@ def tokenize(manuscript: str) -> list:
     tokens = tokenizer.tokenize(manuscript)
     for tok in tokens:
         ps = tok.part_of_speech.split(',')[0]
-        if not ps in ['名詞', '動詞', '形容詞']:
+        if ps in not ['名詞', '動詞', '形容詞']:
             continue
         # 原形があれば原形をリストに入れる
         w = tok.base_form
