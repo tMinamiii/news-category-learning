@@ -2,8 +2,8 @@ import tensorflow as tf
 import learning_data as ld
 import numpy as np
 
-tuid = ld.load('ldata/2017-10-09.tuid')
-td = ld.load('ldata/2017-10-09.svdtd')
+tuid = ld.load('ldata/2017-10-10.tuid')
+td = ld.load('ldata/2017-10-10.svdtd')
 np.random.shuffle(td)
 tdlen = len(td)
 boundary = int(tdlen / 10 * 8)
