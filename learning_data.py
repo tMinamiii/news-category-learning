@@ -113,9 +113,7 @@ def load(filepath: str):
         return pickle.load(f)
 
 
-def tokenize(manuscript: str) -> list:
-    token_list = []
-    tokenizer = Tokenizer()
+def filter_manuscript(manuscript: str) -> str:
     # 英文を取り除く（日本語の中の英字はそのまま）
     manuscript = re.sub(r'[a-zA-Z0-9]+[ \,\.\':;\-\+?!]', '', manuscript)
     # 記号や数字は「、」に変換する。
@@ -124,6 +122,15 @@ def tokenize(manuscript: str) -> list:
     manuscript = re.sub(r'[0-9]', '、', manuscript)
     manuscript = re.sub(
         r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '、', manuscript)
+    return manuscript
+
+
+tokenizer = Tokenizer()
+
+
+def tokenize(manuscript: str) -> list:
+    token_list = []
+    manuscript = filter_manuscript(manuscript)
     tokens = tokenizer.tokenize(manuscript)
     for tok in tokens:
         ps = tok.part_of_speech.split(',')[0]
