@@ -93,9 +93,10 @@ def main():
         nn.sess.run(nn.train_step, feed_dict={
             nn.x: batch_data, nn.t: batch_label})
         if i % 10 == 0:
-            loss_val, acc_val = nn.sess.run([nn.loss, nn.accuracy], feed_dict={
+            summary, loss_val, acc_val = nn.sess.run([nn.summary, nn.loss, nn.accuracy], feed_dict={
                 nn.x: predict_data, nn.t: predict_label})
             print('Step: %d, Loss: %f, Accuracy: %f' % (i, loss_val, acc_val))
+            nn.writer.add_summary(summary, i)
 
 
 if __name__ == '__main__':
