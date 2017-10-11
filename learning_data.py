@@ -53,8 +53,8 @@ class SVD(DimensionReduction):
     def __init__(self, vecs: list):
         _, _, self.V = scipy.sparse.linalg.svds(vecs, k=len(vecs) - 1)
 
-    def transform(self, vecs: list) -> np.array:
-        return np.dot(np.array(vecs), self.V.T)
+    def transform(self, vecs: np.array) -> np.array:
+        return np.dot(vecs, self.V.T)
 
 
 class LearningData:
@@ -84,7 +84,7 @@ class LearningData:
                 continue
             tf_vec = self.calc_tf_vec(tokens, max_dim)
             if self.dim_red is not None:
-                tf_vec = self.dim_red.transform(tf_vec).tolist()
+                tf_vec = self.dim_red.transform(tf_vec)
             append((category_vec, tf_vec))
 
         return np.array(train_data)
@@ -99,7 +99,7 @@ class LearningData:
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
             tf_vec[uid] += delta
-        return tf_vec
+        return np.array(tf_vec)
 
 
 def dump(dumpdata, filepath: str) -> None:
