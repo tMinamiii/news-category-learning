@@ -53,7 +53,7 @@ class SVD(DimensionReduction):
     def __init__(self, vecs: list):
         _, _, self.V = scipy.sparse.linalg.svds(vecs, k=len(vecs) - 1)
 
-    def transform(self, vecs: list):
+    def transform(self, vecs: list) -> np.array:
         return np.dot(np.array(vecs), self.V.T)
 
 
@@ -62,8 +62,9 @@ class LearningData:
         self.tuid = tuid
         self.dim_red = dim_red
 
-    def make(self, news: list, manuscript_min_len: int = 100):
+    def make(self, news: list, manuscript_min_len: int = 100) -> np.array:
         train_data = []
+        append = train_data.append
         cat_list = list(self.tuid.categories)
         cat_len = len(self.tuid.categories)
         max_dim = self.tuid.seq_no_uid + 1
@@ -72,7 +73,7 @@ class LearningData:
             if wc < manuscript_min_len:
                 continue
             category = line[0]
-            category_vec = np.zeros(cat_len)
+            category_vec = [0] * cat_len
             category_vec[cat_list.index(category)] = 1
             manuscript = line[3]
             try:
@@ -81,24 +82,23 @@ class LearningData:
                 continue
             if tokens is None:
                 continue
-            tf_vec = self.calc_tf_vec(
-                tokens, max_dim).tolist()
+            tf_vec = self.calc_tf_vec(tokens, max_dim)
             if self.dim_red is not None:
                 tf_vec = self.dim_red.transform(tf_vec).tolist()
-            train_data.append((category_vec, tf_vec))
+            append((category_vec, tf_vec))
 
         return np.array(train_data)
 
-    def calc_tf_vec(self, tokens: list, max_dim: int) -> list:
+    def calc_tf_vec(self, tokens: list, max_dim: int) -> np.array:
         '''
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
         '''
-        tf_vec = np.zeros(max_dim)
+        tf_vec = [0.0] * max_dim
+        delta = 1.0 / len(tokens)
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
-            tf_vec[uid] += 1
-        tf_vec /= len(tokens)
+            tf_vec[uid] += delta
         return tf_vec
 
 
@@ -130,6 +130,7 @@ tokenizer = Tokenizer()
 
 def tokenize(manuscript: str) -> list:
     token_list = []
+    append = token_list.append
     manuscript = filter_manuscript(manuscript)
     tokens = tokenizer.tokenize(manuscript)
     for tok in tokens:
@@ -144,5 +145,5 @@ def tokenize(manuscript: str) -> list:
         if w == '' or w == '\n':
             continue
         lower_w = mojimoji.zen_to_han(w, kana=False, digit=False)
-        token_list.append(lower_w)
+        append(lower_w)
     return token_list
