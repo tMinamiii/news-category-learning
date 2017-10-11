@@ -2,8 +2,8 @@ import tensorflow as tf
 import learning_data as ld
 import numpy as np
 
-tuid = ld.load('ldata/2017-10-10.tuid')
-td = ld.load('ldata/2017-10-10.svdtd')
+tuid = ld.load('ldata/2017-10-11.tuid')
+td = ld.load('ldata/2017-10-11.svdtd')
 np.random.shuffle(td)
 tdlen = len(td)
 boundary = int(tdlen / 10 * 8)
@@ -45,7 +45,7 @@ p = tf.nn.softmax(tf.matmul(hidden2, w0) + b0)
 
 t = tf.placeholder(tf.float32, [None, num_categories])
 loss = -1 * tf.reduce_sum(t * tf.log(p))
-train_step = tf.train.AdadeltaOptimizer(0.01).minimize(loss)
+train_step = tf.train.AdadeltaOptimizer(0.005).minimize(loss)
 correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 
@@ -54,7 +54,7 @@ sess.run(tf.global_variables_initializer())
 
 batch_size = 200
 i = 0
-for _ in range(20000):
+for _ in range(50000):
     i += 1
     np.random.shuffle(td)
     batch_label = td[:batch_size, 0].tolist()
