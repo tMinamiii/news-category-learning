@@ -95,11 +95,10 @@ class LearningData:
         TFベクトル(Term Frequency)を求める。
         '''
         tf_vec = [0.0] * max_dim
-        delta = 1.0 / len(tokens)
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
-            tf_vec[uid] += delta
-        return np.array(tf_vec)
+            tf_vec[uid] += 1
+        return np.array(tf_vec) / len(tokens)
 
 
 def dump(dumpdata, filepath: str) -> None:
