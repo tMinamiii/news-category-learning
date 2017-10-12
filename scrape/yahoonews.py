@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 import urllib.request as req
+import urllib.error
 import time
 from bs4 import BeautifulSoup
 from bs4.element import Tag
@@ -58,12 +59,16 @@ class YahooNewsScraper:
             title = item.find('title').text.strip(' 　')
             link = item.find('link').text
             category = item.find('category').text
-            manuscript = self.read_manuscript(link)
-            chunk = NewsChunk(category, title, manuscript)
-            if category in news_dic:
-                news_dic[category].append(chunk)
-            else:
-                news_dic[category] = [chunk]
+            try:
+                manuscript = self.read_manuscript(link)
+                chunk = NewsChunk(category, title, manuscript)
+                if category in news_dic:
+                    news_dic[category].append(chunk)
+                else:
+                    news_dic[category] = [chunk]
+            except urllib.error.HTTPError as http_error:
+                print(http_error.msg)
+                print('Error url = ' + link)
             time.sleep(sleep)
         return news_dic
 
