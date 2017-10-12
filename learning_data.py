@@ -50,8 +50,10 @@ class DimensionReduction:
 
 
 class SVD(DimensionReduction):
-    def __init__(self, vecs: list):
-        _, _, self.V = scipy.sparse.linalg.svds(vecs, k=len(vecs) - 1)
+    def __init__(self, vecs: list, k: int = None):
+        if k is None:
+            k = len(vecs) - 1
+        _, _, self.V = scipy.sparse.linalg.svds(vecs, k=k)
 
     def transform(self, vecs: np.array) -> np.array:
         return np.dot(vecs, self.V.T)
