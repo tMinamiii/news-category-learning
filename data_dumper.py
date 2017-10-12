@@ -6,7 +6,10 @@ import random
 
 
 MANUSCRIPT_MINIMUM_LENGTH = 300
-SVD_DIMENSION = 3000
+SVD_DATA_LENGTH = 3000
+# SVD_DIMENSION < SVD_DATA_LENGTH
+# 最大にしたい場合はNoneを設定する
+SVD_DIMENSION = 1000
 CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
 # CATEGORIES = ['IT総合', '映画']
@@ -33,11 +36,12 @@ def load_all_csvs(csv_list: list) -> list:
 
 
 def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SVD:
-    svd_news = all_news[0:SVD_DIMENSION]
+    svd_news = all_news[0:SVD_DATA_LENGTH]
     ldata = ld.LearningData(tuid)
     svd_data = ldata.make(svd_news, MANUSCRIPT_MINIMUM_LENGTH)
     print('created training data for svd')
-    return ld.SVD(svd_data[:, 1].tolist())
+    vecs = svd_data[:, 1].tolist()
+    return ld.SVD(vecs, SVD_DIMENSION)
 
 
 def dump_all_csv(tuid: ld.TokenUID,
