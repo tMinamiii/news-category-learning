@@ -118,11 +118,12 @@ def filter_manuscript(manuscript: str) -> str:
     # 英文を取り除く（日本語の中の英字はそのまま）
     manuscript = re.sub(r'[a-zA-Z0-9]+[ \,\.\':;\-\+?!]', '', manuscript)
     # 記号や数字は「、」に変換する。
-    # (消してしまうと意味不明な長文になりjanomeがエラーを起こす)
+    # (単純に消してしまうと意味不明な長文になりjanomeがエラーを起こす)
     manuscript = re.sub(r'[\@\"\,\.]+', '、', manuscript)
     manuscript = re.sub(r'[0-9]', '、', manuscript)
     manuscript = re.sub(
         r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]', '、', manuscript)
+    manuscript = re.sub(r'[（）【】『』｛｝「」［］]', '、', manuscript)
     return manuscript
 
 
