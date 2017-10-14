@@ -30,7 +30,7 @@ def load_all_csvs(csv_list: list) -> list:
             reader = csv.reader(f)
             for row in reader:
                 all_news.append(row)
-    print('all news loaded ' + str(len(all_news)))
+    print('All news were loaded. total: ' + str(len(all_news)))
     random.shuffle(all_news)
     return all_news
 
@@ -39,8 +39,8 @@ def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SVD:
     svd_news = all_news[0:SVD_DATA_LENGTH]
     ldata = ld.LearningData(tuid)
     svd_data = ldata.make(svd_news, MANUSCRIPT_MINIMUM_LENGTH)
-    print('created training data for svd')
     vecs = svd_data[:, 1].tolist()
+    print('SVD was finished.')
     return ld.SVD(vecs, SVD_DIMENSION)
 
 
@@ -49,14 +49,13 @@ def dump_all_csv(tuid: ld.TokenUID,
 
     current_time = datetime.datetime.now()
     output_name = current_time.strftime('%Y-%m-%d')
-    print('dumping tuid data...')
+    print('TUID data was dumped.')
     ld.dump(tuid, 'ldata/' + output_name + '.tuid')
-    print('making train data...')
     # td = ldata.make(tuid, all_news)
     td = svd_ldata.make(all_news, MANUSCRIPT_MINIMUM_LENGTH)
-    print('dumping train data...')
     # ld.dump(td, 'ldata/' + output_name + '.td')
     ld.dump(td, 'ldata/' + output_name + '.svdtd')
+    print('Learning data was dumped.')
 
 
 def main():
