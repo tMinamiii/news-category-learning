@@ -59,12 +59,12 @@ class SVD(DimensionReduction):
         return np.dot(vecs, self.V.T)
 
 
-class LearningData:
+class LearningDataVectorizer:
     def __init__(self, tuid: TokenUID, dim_red: DimensionReduction = None):
         self.tuid = tuid
         self.dim_red = dim_red
 
-    def make(self, news: list, manuscript_min_len: int = 100) -> np.array:
+    def vectorize(self, news: list, manuscript_min_len: int = 100) -> np.array:
         train_data = []
         append = train_data.append
         cat_list = list(self.tuid.categories)
