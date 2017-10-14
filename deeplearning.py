@@ -1,5 +1,5 @@
 import tensorflow as tf
-import learning_data as ld
+import vectorize.learning_data as ld
 import numpy as np
 
 NUM_UNITS = 2000
