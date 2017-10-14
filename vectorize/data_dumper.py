@@ -3,7 +3,7 @@ import datetime
 import glob
 import random
 
-import learning_data as ld
+import vectorize.learning_data as ld
 
 MANUSCRIPT_MINIMUM_LENGTH = 300
 SVD_DATA_LENGTH = 3000

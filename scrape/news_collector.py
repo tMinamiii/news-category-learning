@@ -2,7 +2,7 @@ import csv
 import datetime
 import os
 
-import yahoonews
+import scrape.yahoonews
 
 
 def dump_csv(filename, chunk_list: list):
