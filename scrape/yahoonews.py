@@ -94,7 +94,7 @@ class YahooRSSScraper:
             title = t_ml.contents[0]
             links = con.select('ul.ymuiList > li.ymuiArrow > dl')
             news_dic = {}
-            for link in links[25:]:
+            for link in links:
                 name = link.select_one('dt').string
                 url = link.select_one('dd > a').get('href')
                 news_dic.update({name: url})
