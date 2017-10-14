@@ -1,6 +1,6 @@
 import unittest
 import numpy as np
-import learning_data as ld
+import vectorize.learning_data as ld
 
 
 class TestTokenUID(unittest.TestCase):
@@ -44,7 +44,7 @@ class TestLearningData(unittest.TestCase):
     csv_list = ['tests/test2.csv']
     tuid = ld.TokenUID()
     tuid.update(csv_list)
-    ldata = ld.LearningData(tuid)
+    ldata = ld.LearningDataVectorizer(tuid)
 
 
 if __name__ == '__main__':
