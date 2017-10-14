@@ -1,5 +1,5 @@
+from . import learning_data as ld
 import glob
-import vectorize.learning_data as ld
 import datetime
 import csv
 import random
