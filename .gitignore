@@ -3,4 +3,4 @@
 csv
 tests/tokenuid.dump
 ldata
-*checkpoint.ipynb
+.ipynb_checkpoints
