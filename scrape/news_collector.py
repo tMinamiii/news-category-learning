@@ -1,7 +1,8 @@
-from . import yahoonews
-import datetime
 import csv
+import datetime
 import os
+
+import yahoonews
 
 
 def dump_csv(filename, chunk_list: list):
