@@ -2,7 +2,14 @@ import tensorflow as tf
 import learning_data as ld
 import numpy as np
 
-NUM_UNITS = 8192
+NUM_UNITS = 2000
+DATA_FILE = 'ldata/2017-10-14.svdtd'
+TUID_FILE = 'ldata/2017-10-14.tuid'
+LOG_FILE = '/tmp/yn_categories_logs'
+BATCH_SIZE = 200
+TOTAL_STEP = 500000
+LEARNING_RATIO = 0.005  # 学習率
+TRAINING_DATA_RATIO = 0.9  # 全データのうち訓練用に使う割合
 
 
 class DoubleLayerNetwork:
@@ -33,7 +40,8 @@ class DoubleLayerNetwork:
         with tf.name_scope('optimizer'):
             t = tf.placeholder(tf.float32, [None, num_categories])
             loss = -1 * tf.reduce_sum(t * tf.log(p))
-            train_step = tf.train.AdadeltaOptimizer(0.005).minimize(loss)
+            train_step = tf.train.AdadeltaOptimizer(
+                LEARNING_RATIO).minimize(loss)
 
         with tf.name_scope('evaluator'):
             correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
@@ -59,7 +67,7 @@ class DoubleLayerNetwork:
         sess = tf.InteractiveSession()
         sess.run(tf.global_variables_initializer())
         summary = tf.summary.merge_all()
-        writer = tf.summary.FileWriter('/tmp/yn_categories_logs', sess.graph)
+        writer = tf.summary.FileWriter(LOG_FILE, sess.graph)
 
         self.sess = sess
         self.summary = summary
@@ -67,11 +75,11 @@ class DoubleLayerNetwork:
 
 
 def main():
-    tuid = ld.load('ldata/2017-10-12.tuid')
-    td = ld.load('ldata/2017-10-12.svdtd')
+    tuid = ld.load(TUID_FILE)
+    td = ld.load(DATA_FILE)
     np.random.shuffle(td)
     tdlen = len(td)
-    boundary = int(tdlen / 10 * 9)
+    boundary = int(tdlen * TRAINING_DATA_RATIO)
     pd = td[boundary:tdlen - 1]
     td = td[0:boundary - 1]
     print(len(pd))
@@ -82,13 +90,12 @@ def main():
     predict_data = pd[:, 1].tolist()
 
     nn = DoubleLayerNetwork(NUM_UNITS, vec_dim, num_categories)
-    batch_size = 200
     i = 0
-    for _ in range(50000):
+    for _ in range(TOTAL_STEP):
         i += 1
         np.random.shuffle(td)
-        batch_label = td[:batch_size, 0].tolist()
-        batch_data = td[:batch_size, 1].tolist()
+        batch_label = td[:BATCH_SIZE, 0].tolist()
+        batch_data = td[:BATCH_SIZE, 1].tolist()
 
         nn.sess.run(nn.train_step, feed_dict={
             nn.x: batch_data, nn.t: batch_label})
