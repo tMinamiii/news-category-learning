@@ -1,4 +1,4 @@
-import yahoonews
+from . import yahoonews
 import datetime
 import csv
 import os
