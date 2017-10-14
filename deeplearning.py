@@ -67,8 +67,8 @@ class DoubleLayerNetwork:
 
 
 def main():
-    tuid = ld.load('ldata/2017-10-11.tuid')
-    td = ld.load('ldata/2017-10-11.svdtd')
+    tuid = ld.load('ldata/2017-10-12.tuid')
+    td = ld.load('ldata/2017-10-12.svdtd')
     np.random.shuffle(td)
     tdlen = len(td)
     boundary = int(tdlen / 10 * 9)
