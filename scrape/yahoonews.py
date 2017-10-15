@@ -44,12 +44,12 @@ class YahooNewsScraper:
         manuscript = manuscript.replace('\n', '')
         return manuscript
 
-    def is_old_news(self, pubdate: str, specified_date: datetime) -> bool:
+    def is_old_news(self, pubdate_str: str, specified_date: datetime) -> bool:
         if specified_date is None:
             return False
         date_format = '%a, %d %b %y %h:%m:%s %z'
-        pubdate = datetime.datetime.strptime(pubdate, date_format)
-        if pubdate.date() >= specified_date.date():
+        pubdate_str = datetime.datetime.strptime(pubdate_str, date_format)
+        if pubdate_str.date() >= specified_date.date():
             # 指定した日付より後のニュースは最新ニュースとして扱う
             return False
         else:
