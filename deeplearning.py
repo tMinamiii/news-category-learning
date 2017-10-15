@@ -8,7 +8,7 @@ DATA_FILE = 'ldata/2017-10-15.svdtd'
 TUID_FILE = 'ldata/2017-10-15.tuid'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 200
-TOTAL_STEP = 500000
+TOTAL_STEP = 1000000
 LEARNING_RATIO = 0.005  # 学習率
 TRAINING_DATA_RATIO = 0.9  # 全データのうち訓練用に使う割合
 
