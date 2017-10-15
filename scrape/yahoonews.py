@@ -1,10 +1,11 @@
-import xml.etree.ElementTree as ET
-import urllib.request as req
-import urllib.error
+import datetime
 import time
+import urllib.error
+import urllib.request as req
+import xml.etree.ElementTree as ET
+
 from bs4 import BeautifulSoup
 from bs4.element import Tag
-import datetime
 
 
 class NewsChunk:
@@ -43,19 +44,27 @@ class YahooNewsScraper:
         manuscript = manuscript.replace('\n', '')
         return manuscript
 
+    def is_old_news(self, pubdate: str, specified_date: datetime) -> bool:
+        if specified_date is None:
+            return False
+        date_format = '%a, %d %b %y %h:%m:%s %z'
+        pubdate = datetime.datetime.strptime(pubdate, date_format)
+        if pubdate.date() >= specified_date.date():
+            # 指定した日付より後のニュースは最新ニュースとして扱う
+            return False
+        else:
+            # 指定した日付よりも前のニュースは古いのでTrue
+            return True
+
     def scrape_news(self, rss_url, sleep=1, date=None) -> dict:
         xml = req.urlopen(rss_url).read()
-        root = ET.fromstring(xml)
-        items = root.iter('item')
+        items = ET.fromstring(xml).iter('item')
         news_dic = {}
         for item in items:
-            if date is not None:
-                pubdate_str = item.find('pubDate').text.strip()
-                date_format = '%a, %d %b %Y %H:%M:%S %z'
-                pubdate = datetime.datetime.strptime(pubdate_str, date_format)
-                if pubdate.date() != date.date():
-                    # rssなのでbreakでもよいが念の為
-                    continue
+            pubdate_str = item.find('pubDate').text.strip()
+            if self.is_old_news(pubdate_str, date) is True:
+                # rssなのでbreakでもよいが念の為
+                continue
             title = item.find('title').text.strip(' 　')
             link = item.find('link').text
             category = item.find('category').text
@@ -74,22 +83,22 @@ class YahooNewsScraper:
 
 
 class YahooRSSScraper:
+    '''
+    {'国内': 'JP', '国際': 'World', '経済': 'Economic',
+    'エンタメ': 'Entertaiment', 'スポーツ': 'Sports',
+    'IT・科学': 'Science', 'ライフ': 'Life', '地域': 'JPLocal'}
+    '''
+
     def __init__(self):
         rss_url = 'https://headlines.yahoo.co.jp/rss/list'
         html = req.urlopen(rss_url).read()
-        soup = BeautifulSoup(html, 'lxml')
-        news_areas = soup.select('div.rss_listbox')
+        news_areas = BeautifulSoup(html, 'lxml').select('div.rss_listbox')
         self.rss_dic = {}
         for area in news_areas:
             if area.select_one('h3').get('id') == 'news':
                 # print(area)
                 titles = area.select('div.ymuiHeaderBGLight > h4.ymuiTitle')
                 containers = area.select('div.ymuiContainer')
-                '''
-                {'国内': 'JP', '国際': 'World', '経済': 'Economic',
-                 'エンタメ': 'Entertaiment', 'スポーツ': 'Sports',
-                 'IT・科学': 'Science', 'ライフ': 'Life', '地域': 'JPLocal'}
-                '''
         for t_ml, con in zip(titles, containers):
             title = t_ml.contents[0]
             links = con.select('ul.ymuiList > li.ymuiArrow > dl')
