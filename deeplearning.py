@@ -1,6 +1,7 @@
-import tensorflow as tf
-import vectorize.learning_data as ld
 import numpy as np
+import tensorflow as tf
+
+import vectorize.learning_data as ld
 
 NUM_UNITS = 2000
 DATA_FILE = 'ldata/2017-10-14.svdtd'
@@ -28,12 +29,12 @@ class DoubleLayerNetwork:
             hidden1 = tf.nn.relu(tf.matmul(x, w1) + b1)
 
         with tf.name_scope('hidden2'):
-            w2 = tf.Variable(tf.truncated_normal([num_units, vec_dim]))
-            b2 = tf.Variable(tf.zeros(vec_dim))
+            w2 = tf.Variable(tf.truncated_normal([num_units, num_units]))
+            b2 = tf.Variable(tf.zeros(num_units))
             hidden2 = tf.nn.relu(tf.matmul(hidden1, w2) + b2)
 
         with tf.name_scope('output'):
-            w0 = tf.Variable(tf.zeros([vec_dim, num_categories]))
+            w0 = tf.Variable(tf.zeros([num_units, num_categories]))
             b0 = tf.Variable(tf.zeros([num_categories]))
             p = tf.nn.softmax(tf.matmul(hidden2, w0) + b0)
 
