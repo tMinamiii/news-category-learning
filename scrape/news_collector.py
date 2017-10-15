@@ -27,7 +27,7 @@ def scrape(rss_dic: dict, date: datetime) -> list:
 
 
 def collect(rss_dic: dict, current_time: datetime):
-    chunk_dic = scrape(rss_dic, time)
+    chunk_dic = scrape(rss_dic, current_time)
     timestr = current_time.strftime('%Y-%m-%d')  # -%H-%M-%S')
     for k, v in chunk_dic.items():
         targetdir = 'csv/' + k
