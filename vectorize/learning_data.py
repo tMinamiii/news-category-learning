@@ -1,24 +1,27 @@
-from janome.tokenizer import Tokenizer
 import csv
-import numpy as np
 import pickle
 import re
-import scipy.sparse.linalg
-import mojimoji
 from abc import ABCMeta, abstractmethod
+
+import numpy as np
+import scipy.sparse.linalg
+from janome.tokenizer import Tokenizer
+
+import mojimoji
 
 
 class TokenUID:
+    '''
+    ニュースのCSVを読み込んで、学習用データに変換する。
+    ニュース原稿はTokenizeされ、各単語にUnique IDを割り振る。
+    UIDは単なる連番で、このクラスのtoken_dicに登録された順番で決まる。
+    '''
+
     def __init__(self):
         self.loaded_csv_list = []
         self.token_dic = {}
         self.categories = set()
         self.seq_no_uid = 0
-        '''
-         ニュースのCSVを読み込んで、学習用データに変換する。
-        ニュース原稿はTokenizeされ、更にuidのリスト(単なる数字のリスト)に変換される。
-        ベクトルの最大次元数は、全データを読み込まないとわからないので、ここではまだTFベクトルに変換しない。
-        '''
 
     def update(self, csv_list: list):
         for csv_path in csv_list:
