@@ -52,6 +52,11 @@ class DimensionReduction:
         pass
 
 
+class NoReduction(DimensionReduction):
+    def transform(self, vecs: list):
+        pass
+
+
 class SVD(DimensionReduction):
     def __init__(self, vecs: list, k: int = None):
         if k is None:
@@ -63,7 +68,8 @@ class SVD(DimensionReduction):
 
 
 class LearningDataVectorizer:
-    def __init__(self, tuid: TokenUID, dim_red: DimensionReduction = None):
+    def __init__(self, tuid: TokenUID,
+                 dim_red: DimensionReduction = NoReduction()):
         self.tuid = tuid
         self.dim_red = dim_red
 
@@ -88,8 +94,7 @@ class LearningDataVectorizer:
             if tokens is None:
                 continue
             tf_vec = self.calc_tf_vec(tokens, max_dim)
-            if self.dim_red is not None:
-                tf_vec = self.dim_red.transform(tf_vec)
+            tf_vec = self.dim_red.transform(tf_vec)
             append((category_vec, tf_vec))
 
         return np.array(train_data)
