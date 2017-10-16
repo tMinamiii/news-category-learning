@@ -28,17 +28,19 @@ class DoubleLayerNetwork:
             b1 = tf.Variable(tf.zeros(num_units))
             hidden1 = tf.nn.relu(tf.matmul(x, w1) + b1)
 
-        '''
         with tf.name_scope('hidden2'):
             w2 = tf.Variable(tf.truncated_normal([num_units, num_units]))
             b2 = tf.Variable(tf.zeros(num_units))
             hidden2 = tf.nn.relu(tf.matmul(hidden1, w2) + b2)
-        '''
+
+        with tf.name_scope('dropout'):
+            keep_prob = tf.placeholder(tf.float32)
+            hidden2_drop = tf.nn.dropout(hidden2, keep_prob)
 
         with tf.name_scope('output'):
             w0 = tf.Variable(tf.zeros([num_units, num_categories]))
             b0 = tf.Variable(tf.zeros([num_categories]))
-            p = tf.nn.softmax(tf.matmul(hidden1, w0) + b0)
+            p = tf.nn.softmax(tf.matmul(hidden2_drop, w0) + b0)
 
         with tf.name_scope('optimizer'):
             t = tf.placeholder(tf.float32, [None, num_categories])
@@ -62,6 +64,7 @@ class DoubleLayerNetwork:
         self.x = x
         self.t = t
         self.p = p
+        self.keep_prob = keep_prob
         self.train_step = train_step
         self.loss = loss
         self.accuracy = accuracy
@@ -101,11 +104,13 @@ def main():
         batch_data = td[:BATCH_SIZE, 1].tolist()
 
         nn.sess.run(nn.train_step, feed_dict={
-            nn.x: batch_data, nn.t: batch_label})
+            nn.x: batch_data, nn.t: batch_label, nn.keep_prob: 0.5})
         if i % 100 == 0:
             summary, loss_val, acc_val = nn.sess.run(
                 [nn.summary, nn.loss, nn.accuracy],
-                feed_dict={nn.x: predict_data, nn.t: predict_label})
+                feed_dict={nn.x: predict_data,
+                           nn.t: predict_label,
+                           nn.keep_prob: 1.0})
             print('Step: %d, Loss: %f, Accuracy: %f' % (i, loss_val, acc_val))
             nn.writer.add_summary(summary, i)
 
