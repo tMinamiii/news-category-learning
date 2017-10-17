@@ -107,7 +107,7 @@ class TermFrequencyVectorizer:
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
             tf_vec[uid] += 1
-        tf_vec = np.array / len(tokens)
+        tf_vec = np.array(tf_vec) / len(tokens)
         tf_vec = self.dim_red.transform(tf_vec)
         return tf_vec
 
