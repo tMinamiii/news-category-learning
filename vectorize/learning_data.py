@@ -53,8 +53,8 @@ class DimensionReduction:
 
 
 class NoReduction(DimensionReduction):
-    def transform(self, vecs: list):
-        pass
+    def transform(self, vecs: np.array) -> np.array:
+        return vecs
 
 
 class SparseSVD(DimensionReduction):
