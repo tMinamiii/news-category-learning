@@ -48,7 +48,7 @@ class DimensionReduction:
     __metaclass__ = ABCMeta
 
     @abstractmethod
-    def transform(self, vecs: list):
+    def transform(self, vecs: np.array) -> np.array:
         pass
 
 
@@ -107,9 +107,7 @@ class TermFrequencyVectorizer:
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
             tf_vec[uid] += 1
-        tf_vec = np.array(tf_vec) / len(tokens)
-        tf_vec = self.dim_red.transform(tf_vec)
-        return tf_vec
+        return self.dim_red.transform(np.array(tf_vec) / len(tokens))
 
 
 def dump(dumpdata, filepath: str) -> None:
