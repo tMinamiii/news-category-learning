@@ -30,8 +30,8 @@ def load_all_csvs(csv_list: list) -> list:
             reader = csv.reader(f)
             for row in reader:
                 all_news.append(row)
-    print('All news were loaded. total: ' + str(len(all_news)))
     random.shuffle(all_news)
+    print('All news were loaded. total: ' + str(len(all_news)))
     return all_news
 
 
@@ -40,8 +40,9 @@ def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SparseSVD:
     ldata = ld.TermFrequencyVectorizer(tuid)
     svd_data = ldata.vectorize(svd_news, MANUSCRIPT_MINIMUM_LENGTH)
     vecs = svd_data[:, 1].tolist()
+    svd = ld.SparseSVD(vecs, SVD_DIMENSION)
     print('SVD was finished.')
-    return ld.SparseSVD(vecs, SVD_DIMENSION)
+    return svd
 
 
 def dump_all_csv(tuid: ld.TokenUID,
