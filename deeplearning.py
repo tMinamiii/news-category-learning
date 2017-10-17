@@ -4,8 +4,8 @@ import tensorflow as tf
 import vectorize.learning_data as ld
 
 NUM_UNITS = 2000
-DATA_FILE = 'ldata/2017-10-16.svdtd'
-TUID_FILE = 'ldata/2017-10-16.tuid'
+DATA_FILE = 'ldata/2017-10-17.svdtd'
+TUID_FILE = 'ldata/2017-10-17.tuid'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 100
 TOTAL_STEP = 1000000
@@ -54,8 +54,8 @@ class DoubleLayerNetwork:
 
         tf.summary.scalar('loss', loss)
         tf.summary.scalar('accuracy', accuracy)
-        # tf.summary.histogram('weights_hidden2', w2)
-        # tf.summary.histogram('biases_hidden2', b2)
+        tf.summary.histogram('weights_hidden2', w2)
+        tf.summary.histogram('biases_hidden2', b2)
         tf.summary.histogram('weights_hidden1', w1)
         tf.summary.histogram('biases_hidden1', b1)
         tf.summary.histogram('weights_output', w0)
