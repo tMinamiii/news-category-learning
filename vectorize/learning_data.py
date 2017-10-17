@@ -57,7 +57,7 @@ class NoReduction(DimensionReduction):
         pass
 
 
-class SVD(DimensionReduction):
+class SparseSVD(DimensionReduction):
     def __init__(self, vecs: list, k: int = None):
         if k is None:
             k = len(vecs) - 1
@@ -67,25 +67,25 @@ class SVD(DimensionReduction):
         return np.dot(vecs, self.V.T)
 
 
-class LearningDataVectorizer:
+class TermFrequencyVectorizer:
     def __init__(self, tuid: TokenUID,
                  dim_red: DimensionReduction = NoReduction()):
         self.tuid = tuid
+        self.cat_list = list(self.tuid.categories)
+        self.cat_len = len(self.tuid.categories)
+        self.max_dim = self.tuid.seq_no_uid + 1
         self.dim_red = dim_red
 
     def vectorize(self, news: list, manuscript_min_len: int = 100) -> np.array:
         train_data = []
         append = train_data.append
-        cat_list = list(self.tuid.categories)
-        cat_len = len(self.tuid.categories)
-        max_dim = self.tuid.seq_no_uid + 1
         for line in news:
             wc = int(line[2])
             if wc < manuscript_min_len:
                 continue
             category = line[0]
-            category_vec = [0] * cat_len
-            category_vec[cat_list.index(category)] = 1
+            category_vec = [0] * self.cat_len
+            category_vec[self.cat_list.index(category)] = 1
             manuscript = line[3]
             try:
                 tokens = tokenize(manuscript)
@@ -93,22 +93,23 @@ class LearningDataVectorizer:
                 continue
             if tokens is None:
                 continue
-            tf_vec = self.calc_tf_vec(tokens, max_dim)
-            tf_vec = self.dim_red.transform(tf_vec)
+            tf_vec = self.calc_tf_vec(tokens)
             append((category_vec, tf_vec))
 
         return np.array(train_data)
 
-    def calc_tf_vec(self, tokens: list, max_dim: int) -> np.array:
+    def calc_tf_vec(self, tokens: list) -> np.array:
         '''
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
         '''
-        tf_vec = [0.0] * max_dim
+        tf_vec = [0.0] * self.max_dim
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
             tf_vec[uid] += 1
-        return np.array(tf_vec) / len(tokens)
+        tf_vec = np.array / len(tokens)
+        tf_vec = self.dim_red.transform(tf_vec)
+        return tf_vec
 
 
 def dump(dumpdata, filepath: str) -> None:

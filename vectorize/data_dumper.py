@@ -35,17 +35,17 @@ def load_all_csvs(csv_list: list) -> list:
     return all_news
 
 
-def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SVD:
+def calc_svd(tuid: ld.TokenUID, all_news: list) -> ld.SparseSVD:
     svd_news = all_news[0:SVD_DATA_LENGTH]
-    ldata = ld.LearningDataVectorizer(tuid)
+    ldata = ld.TermFrequencyVectorizer(tuid)
     svd_data = ldata.vectorize(svd_news, MANUSCRIPT_MINIMUM_LENGTH)
     vecs = svd_data[:, 1].tolist()
     print('SVD was finished.')
-    return ld.SVD(vecs, SVD_DIMENSION)
+    return ld.SparseSVD(vecs, SVD_DIMENSION)
 
 
 def dump_all_csv(tuid: ld.TokenUID,
-                 svd_ldata: ld.LearningDataVectorizer, all_news: list):
+                 svd_ldata: ld.TermFrequencyVectorizer, all_news: list):
 
     current_time = datetime.datetime.now()
     output_name = current_time.strftime('%Y-%m-%d')
@@ -64,7 +64,7 @@ def main():
     tuid = ld.TokenUID()
     tuid.update(csv_list)
     svd = calc_svd(tuid, all_news)
-    svd_ldata = ld.LearningDataVectorizer(tuid, dim_red=svd)
+    svd_ldata = ld.TermFrequencyVectorizer(tuid, dim_red=svd)
     dump_all_csv(tuid, svd_ldata, all_news)
 
 
