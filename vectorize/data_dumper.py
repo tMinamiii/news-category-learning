@@ -6,7 +6,7 @@ import random
 import vectorize.learning_data as ld
 
 MANUSCRIPT_MINIMUM_LENGTH = 300
-SVD_DATA_LENGTH = 3000
+SVD_DATA_LENGTH = 5000
 # SVD_DIMENSION < SVD_DATA_LENGTH
 # 最大にしたい場合はNoneを設定する
 SVD_DIMENSION = 500
