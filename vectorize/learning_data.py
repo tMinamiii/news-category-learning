@@ -1,4 +1,5 @@
 import csv
+import math
 import pickle
 import re
 from abc import ABCMeta, abstractmethod
@@ -20,8 +21,11 @@ class TokenUID:
     def __init__(self):
         self.loaded_csv_list = []
         self.token_dic = {}
+        self.inverse_token_dic = {}
         self.categories = set()
-        self.seq_no_uid = 0
+        self.token_seq_no = 0
+        self.doc_seq_no = 0
+        self.docs_dic = {}
 
     def update(self, csv_list: list):
         for csv_path in csv_list:
@@ -40,8 +44,17 @@ class TokenUID:
                     self.categories.add(row[0])
                     for tok in token_list:
                         if tok not in self.token_dic:
-                            self.token_dic[tok] = self.seq_no_uid
-                            self.seq_no_uid += 1
+                            self.token_dic[tok] = self.token_seq_no
+                            self.inverse_token_dic[self.token_seq_no] = tok
+                            self.token_seq_no += 1
+                        if tok in self.docs_dic:
+                            self.docs_dic[tok].add(self.doc_seq_no)
+                        else:
+                            self.docs_dic[tok] = set([self.doc_seq_no])
+                    self.doc_seq_no += 1
+
+    def idf(self, token) -> float:
+        return math.log(float(self.doc_seq_no) / len(self.docs_dic[token]))
 
 
 class DimensionReduction:
@@ -73,7 +86,7 @@ class TermFrequencyVectorizer:
         self.tuid = tuid
         self.cat_list = list(self.tuid.categories)
         self.cat_len = len(self.tuid.categories)
-        self.max_dim = self.tuid.seq_no_uid + 1
+        self.max_dim = self.tuid.token_seq_no
         self.dim_red = dim_red
 
     def vectorize(self, news: list, manuscript_min_len: int = 100) -> np.array:
@@ -107,6 +120,11 @@ class TermFrequencyVectorizer:
         for tok in tokens:
             uid = self.tuid.token_dic[str(tok)]
             tf_vec[uid] += 1
+
+        for uid in range(self.max_dim):
+            token = self.tuid.inverse_token_dic[uid]
+            tf_vec[uid] *= self.tuid.idf(token)
+
         return self.dim_red.transform(np.array(tf_vec) / len(tokens))
 
 
