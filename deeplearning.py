@@ -4,8 +4,8 @@ import tensorflow as tf
 import vectorize.learning_data as ld
 
 NUM_UNITS = 1000
-DATA_FILE = 'ldata/2017-10-18.svdtd'
-TUID_FILE = 'ldata/2017-10-18.tuid'
+DATA_FILE = 'ldata/2017-10-20.svdtd'
+TUID_FILE = 'ldata/2017-10-20.tuid'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 100
 TOTAL_STEP = 1000000
