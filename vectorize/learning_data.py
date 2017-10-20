@@ -25,7 +25,7 @@ class Token:
         self.categories = set()
         self.token_seq_no = 0
         self.doc_seq_no = 0
-        self.docs_dic = {}
+        self.token_to_doc_uids = {}
 
     def update(self, csv_list: list):
         for csv_path in csv_list:
@@ -47,14 +47,15 @@ class Token:
                             self.token_to_uid[tok] = self.token_seq_no
                             self.uid_to_token[self.token_seq_no] = tok
                             self.token_seq_no += 1
-                        if tok in self.docs_dic:
-                            self.docs_dic[tok].add(self.doc_seq_no)
+                        if tok in self.token_to_doc_uids:
+                            self.token_to_doc_uids[tok].add(self.doc_seq_no)
                         else:
-                            self.docs_dic[tok] = set([self.doc_seq_no])
+                            self.token_to_doc_uids[tok] = set(
+                                [self.doc_seq_no])
                     self.doc_seq_no += 1
 
     def idf(self, token) -> float:
-        return math.log(float(self.doc_seq_no) / len(self.docs_dic[token])) + 1
+        return math.log(float(self.doc_seq_no) / len(self.token_to_doc_uids[token])) + 1
 
 
 class DimensionReduction:
