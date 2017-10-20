@@ -11,7 +11,7 @@ from janome.tokenizer import Tokenizer
 import mojimoji
 
 
-class TokenUID:
+class Token:
     '''
     ニュースのCSVを読み込んで、学習用データに変換する。
     ニュース原稿はTokenizeされ、各単語にUnique IDを割り振る。
@@ -20,8 +20,8 @@ class TokenUID:
 
     def __init__(self):
         self.loaded_csv_list = []
-        self.token_dic = {}
-        self.inverse_token_dic = {}
+        self.token_to_uid = {}
+        self.uid_to_token = {}
         self.categories = set()
         self.token_seq_no = 0
         self.doc_seq_no = 0
@@ -43,9 +43,9 @@ class TokenUID:
                         continue
                     self.categories.add(row[0])
                     for tok in token_list:
-                        if tok not in self.token_dic:
-                            self.token_dic[tok] = self.token_seq_no
-                            self.inverse_token_dic[self.token_seq_no] = tok
+                        if tok not in self.token_to_uid:
+                            self.token_to_uid[tok] = self.token_seq_no
+                            self.uid_to_token[self.token_seq_no] = tok
                             self.token_seq_no += 1
                         if tok in self.docs_dic:
                             self.docs_dic[tok].add(self.doc_seq_no)
@@ -54,7 +54,7 @@ class TokenUID:
                     self.doc_seq_no += 1
 
     def idf(self, token) -> float:
-        return math.log(float(self.doc_seq_no) / len(self.docs_dic[token]))
+        return math.log(float(self.doc_seq_no) / len(self.docs_dic[token])) + 1
 
 
 class DimensionReduction:
@@ -81,7 +81,7 @@ class SparseSVD(DimensionReduction):
 
 
 class TermFrequencyVectorizer:
-    def __init__(self, tuid: TokenUID,
+    def __init__(self, tuid: Token,
                  dim_red: DimensionReduction = NoReduction()):
         self.tuid = tuid
         self.cat_list = list(self.tuid.categories)
@@ -118,11 +118,11 @@ class TermFrequencyVectorizer:
         '''
         tf_vec = [0.0] * self.max_dim
         for tok in tokens:
-            uid = self.tuid.token_dic[str(tok)]
+            uid = self.tuid.token_to_uid[str(tok)]
             tf_vec[uid] += 1
 
         for uid in range(self.max_dim):
-            token = self.tuid.inverse_token_dic[uid]
+            token = self.tuid.uid_to_token[uid]
             tf_vec[uid] *= self.tuid.idf(token)
 
         return self.dim_red.transform(np.array(tf_vec) / len(tokens))
