@@ -19,7 +19,7 @@ class Token:
     '''
 
     def __init__(self, min_manuscript_len: int, min_token_len: int):
-        self.loaded_csv_list = []
+        self.loaded_csv_paths = []
         self.token_to_uid = {}
         self.uid_to_token = {}
         self.categories = set()
@@ -28,12 +28,14 @@ class Token:
         self.token_to_doc_uids = {}
         self.min_manuscript_len = min_manuscript_len
         self.min_token_len = min_token_len
+        self.tokenized_news = []
+        self.idf = {}
 
-    def update(self, csv_list: list):
-        for csv_path in csv_list:
-            with open(csv_path, 'r') as f:
+    def update(self, csv_paths: list):
+        for path in csv_paths:
+            with open(path, 'r') as f:
                 reader = csv.reader(f)
-                self.loaded_csv_list.append(csv_path)
+                self.loaded_csv_paths.append(path)
                 for row in reader:
                     if len(row) != 4:
                         continue
@@ -41,25 +43,32 @@ class Token:
                     if wc < self.min_manuscript_len:
                         continue
                     manuscript = row[3]
-                    tokens = tokenize(manuscript)
+                    filtered = filter_manuscript(manuscript)
+                    tokens = tokenize(filtered)
                     if tokens is None or len(tokens) < self.min_token_len:
                         continue
                     self.categories.add(row[0])
-                    for tok in tokens:
-                        if tok not in self.token_to_uid:
-                            self.token_to_uid[tok] = self.token_seq_no
-                            self.uid_to_token[self.token_seq_no] = tok
-                            self.token_seq_no += 1
-                        if tok in self.token_to_doc_uids:
-                            self.token_to_doc_uids[tok].add(self.doc_seq_no)
-                        else:
-                            self.token_to_doc_uids[tok] = set(
-                                [self.doc_seq_no])
-                    self.doc_seq_no += 1
+                    self.update_token_dics(tokens)
+                    self.tokenized_news.append([row[0], tokens])
+        self.update_idf()
 
-    def idf(self, token) -> float:
-        return math.log(float(self.doc_seq_no) /
-                        len(self.token_to_doc_uids[token])) + 1
+    def update_token_dics(self, tokens: list):
+        for tok in tokens:
+            if tok not in self.token_to_uid:
+                self.token_to_uid[tok] = self.token_seq_no
+                self.uid_to_token[self.token_seq_no] = tok
+                self.token_seq_no += 1
+                if tok in self.token_to_doc_uids:
+                    self.token_to_doc_uids[tok].add(self.doc_seq_no)
+                else:
+                    self.token_to_doc_uids[tok] = set([self.doc_seq_no])
+        self.doc_seq_no += 1
+
+    def update_idf(self) -> float:
+        for token in self.token_to_doc_uids.keys():
+            idf = math.log(float(self.doc_seq_no) /
+                           len(self.token_to_doc_uids[token])) + 1
+            self.idf.update(token, idf)
 
 
 class DimensionReduction:
@@ -84,6 +93,11 @@ class SparseSVD(DimensionReduction):
     def transform(self, vecs: np.array) -> np.array:
         return np.dot(vecs, self.V.T)
 
+    def transform_each(self, matrix: np.array) -> list:
+        transform = self.transform
+        dimred_matrix = [transform(vec).tolist() for vec in matrix]
+        return dimred_matrix
+
 
 class TfidfVectorizer:
     def __init__(self, tuid: Token,
@@ -94,17 +108,11 @@ class TfidfVectorizer:
         self.max_dim = self.tuid.token_seq_no
         self.dim_red = dim_red
 
-    def vectorize(self, news: list) -> np.array:
+    def vectorize(self, tokenized_news: list) -> np.array:
         train_data = []
         append = train_data.append
-        for line in news:
-            wc = int(line[2])
-            if wc < self.tuid.min_manuscript_len:
-                continue
-            manuscript = line[3]
-            tokens = tokenize(manuscript)
-            if tokens is None or len(tokens) < self.tuid.min_token_len:
-                continue
+        for line in tokenized_news:
+            tokens = line[1]
             tf_vec = self.calc_tfidf(tokens)
             category = line[0]
             category_vec = [0] * self.cat_len
@@ -118,14 +126,15 @@ class TfidfVectorizer:
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
         '''
+        tuid = self.tuid
         tf_vec = [0.0] * self.max_dim
         for tok in tokens:
-            uid = self.tuid.token_to_uid[str(tok)]
+            uid = tuid.token_to_uid[str(tok)]
             tf_vec[uid] += 1
 
         for uid in range(self.max_dim):
-            token = self.tuid.uid_to_token[uid]
-            tf_vec[uid] *= self.tuid.idf(token)
+            token = tuid.uid_to_token[uid]
+            tf_vec[uid] *= tuid.idf[token]
 
         return self.dim_red.transform(np.array(tf_vec) / len(tokens))
 
@@ -159,9 +168,8 @@ tokenizer = Tokenizer()
 def tokenize(manuscript: str) -> list:
     token_list = []
     append = token_list.append
-    filtered = filter_manuscript(manuscript)
     try:
-        tokens = tokenizer.tokenize(filtered)
+        tokens = tokenizer.tokenize(manuscript)
     except IndexError:
         print(manuscript)
         return None
