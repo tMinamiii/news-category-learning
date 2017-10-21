@@ -18,7 +18,7 @@ class Token:
     UIDは単なる連番で、このクラスのtoken_dicに登録された順番で決まる。
     '''
 
-    def __init__(self):
+    def __init__(self, min_manuscript_len: int, min_token_len: int):
         self.loaded_csv_list = []
         self.token_to_uid = {}
         self.uid_to_token = {}
@@ -26,6 +26,8 @@ class Token:
         self.token_seq_no = 0
         self.doc_seq_no = 0
         self.token_to_doc_uids = {}
+        self.min_manuscript_len = min_manuscript_len
+        self.min_token_len = min_token_len
 
     def update(self, csv_list: list):
         for csv_path in csv_list:
@@ -35,14 +37,15 @@ class Token:
                 for row in reader:
                     if len(row) != 4:
                         continue
+                    wc = int(row[2])
+                    if wc < self.min_manuscript_len:
+                        continue
                     manuscript = row[3]
-                    try:
-                        token_list = tokenize(manuscript)
-                    except IndexError:
-                        print(manuscript)
+                    tokens = tokenize(manuscript)
+                    if tokens is None or len(tokens) < self.min_token_len:
                         continue
                     self.categories.add(row[0])
-                    for tok in token_list:
+                    for tok in tokens:
                         if tok not in self.token_to_uid:
                             self.token_to_uid[tok] = self.token_seq_no
                             self.uid_to_token[self.token_seq_no] = tok
@@ -55,7 +58,8 @@ class Token:
                     self.doc_seq_no += 1
 
     def idf(self, token) -> float:
-        return math.log(float(self.doc_seq_no) / len(self.token_to_doc_uids[token])) + 1
+        return math.log(float(self.doc_seq_no) /
+                        len(self.token_to_doc_uids[token])) + 1
 
 
 class DimensionReduction:
@@ -81,7 +85,7 @@ class SparseSVD(DimensionReduction):
         return np.dot(vecs, self.V.T)
 
 
-class TermFrequencyVectorizer:
+class TfidfVectorizer:
     def __init__(self, tuid: Token,
                  dim_red: DimensionReduction = NoReduction()):
         self.tuid = tuid
@@ -90,24 +94,21 @@ class TermFrequencyVectorizer:
         self.max_dim = self.tuid.token_seq_no
         self.dim_red = dim_red
 
-    def vectorize(self, news: list, manuscript_min_len: int = 100) -> np.array:
+    def vectorize(self, news: list) -> np.array:
         train_data = []
         append = train_data.append
         for line in news:
             wc = int(line[2])
-            if wc < manuscript_min_len:
+            if wc < self.tuid.min_manuscript_len:
                 continue
+            manuscript = line[3]
+            tokens = tokenize(manuscript)
+            if tokens is None or len(tokens) < self.tuid.min_token_len:
+                continue
+            tf_vec = self.calc_tf_vec(tokens)
             category = line[0]
             category_vec = [0] * self.cat_len
             category_vec[self.cat_list.index(category)] = 1
-            manuscript = line[3]
-            try:
-                tokens = tokenize(manuscript)
-            except IndexError:
-                continue
-            if tokens is None:
-                continue
-            tf_vec = self.calc_tf_vec(tokens)
             append((category_vec, tf_vec))
 
         return np.array(train_data)
@@ -158,8 +159,12 @@ tokenizer = Tokenizer()
 def tokenize(manuscript: str) -> list:
     token_list = []
     append = token_list.append
-    manuscript = filter_manuscript(manuscript)
-    tokens = tokenizer.tokenize(manuscript)
+    filtered = filter_manuscript(manuscript)
+    try:
+        tokens = tokenizer.tokenize(filtered)
+    except IndexError:
+        print(manuscript)
+        return None
     for tok in tokens:
         ps = tok.part_of_speech.split(',')[0]
         if ps not in ['名詞', '動詞', '形容詞']:
