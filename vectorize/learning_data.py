@@ -105,7 +105,7 @@ class TfidfVectorizer:
             tokens = tokenize(manuscript)
             if tokens is None or len(tokens) < self.tuid.min_token_len:
                 continue
-            tf_vec = self.calc_tf_vec(tokens)
+            tf_vec = self.calc_tfidf(tokens)
             category = line[0]
             category_vec = [0] * self.cat_len
             category_vec[self.cat_list.index(category)] = 1
@@ -113,7 +113,7 @@ class TfidfVectorizer:
 
         return np.array(train_data)
 
-    def calc_tf_vec(self, tokens: list) -> np.array:
+    def calc_tfidf(self, tokens: list) -> np.array:
         '''
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
