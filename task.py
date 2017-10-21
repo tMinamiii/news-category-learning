@@ -7,26 +7,26 @@ import vectorize.learning_data as ld
 
 def main():
     tuid = ld.load(c.TUID_FILE)
-    td = ld.load(c.DATA_FILE)
-    np.random.shuffle(td)
-    tdlen = len(td)
-    boundary = int(tdlen * c.TRAINING_DATA_RATIO)
-    pd = td[boundary:tdlen - 1]
-    td = td[0:boundary - 1]
-    print(len(pd))
-    print(len(td))
+    label_and_data = ld.load(c.DATA_FILE)
+    np.random.shuffle(label_and_data)
+    length = len(label_and_data)
+    boundary = int(length * c.TRAINING_DATA_RATIO)
+    test = label_and_data[boundary:]
+    train = label_and_data[0:boundary - 1]
+    print(len(test))
+    print(len(train))
     num_categories = len(tuid.categories)
-    predict_label = pd[:, 0].tolist()
-    predict_data = pd[:, 1].tolist()
+    predict_label = test[:, 0].tolist()
+    predict_data = test[:, 1].tolist()
 
     nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATIO, c.NUM_UNITS,
                                  c.SVD_DIMENSION, num_categories, c.LOG_FILE)
     i = 0
     for _ in range(c.TOTAL_STEP):
         i += 1
-        np.random.shuffle(td)
-        batch_label = td[:c.BATCH_SIZE, 0].tolist()
-        batch_data = td[:c.BATCH_SIZE, 1].tolist()
+        np.random.shuffle(train)
+        batch_label = train[:c.BATCH_SIZE, 0].tolist()
+        batch_data = train[:c.BATCH_SIZE, 1].tolist()
 
         nn.sess.run(nn.train_step, feed_dict={
             nn.x: batch_data, nn.t: batch_label, nn.keep_prob: 0.5})
