@@ -65,10 +65,9 @@ class Token:
         self.doc_seq_no += 1
 
     def update_idf(self) -> float:
-        for token in self.token_to_doc_uids.keys():
-            idf = math.log(float(self.doc_seq_no) /
-                           len(self.token_to_doc_uids[token])) + 1
-            self.idf.update(token, idf)
+        for token, _ in self.token_to_doc_uids.items():
+            self.idf[token] = math.log(float(self.doc_seq_no) /
+                                       len(self.token_to_doc_uids[token])) + 1
 
 
 class DimensionReduction:
