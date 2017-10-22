@@ -190,6 +190,11 @@ def tokenize(manuscript: str) -> list:
             w = tok.surface
         if w == '' or w == '\n':
             continue
-        lower_w = mojimoji.zen_to_han(w, kana=False, digit=False)
-        append(lower_w)
+        # 全角英数はすべて半角英数にする
+        w = mojimoji.zen_to_han(w, kana=False, digit=False)
+        # 半角カタカナはすべて全角にする
+        w = mojimoji.han_to_zen(w, digit=False, ascii=False)
+        # 英語はすべて大文字にする
+        w = w.lower()
+        append(w)
     return token_list
