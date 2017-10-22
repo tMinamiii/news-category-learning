@@ -22,7 +22,7 @@ class Token:
     def __init__(self, min_manuscript_len: int, min_token_len: int):
         self.loaded_csv_paths = []
         self.token_to_id = {}
-        self.uid_to_token = {}
+        self.id_to_token = {}
         self.categories = set()
         self.token_seq_no = 0
         self.doc_seq_no = 0
@@ -59,7 +59,7 @@ class Token:
         for tok in token_counter.items():
             if tok not in self.token_to_id:
                 self.token_to_id[tok] = self.token_seq_no
-                self.uid_to_token[self.token_seq_no] = tok
+                self.id_to_token[self.token_seq_no] = tok
                 self.token_seq_no += 1
                 if tok in self.token_to_docid:
                     self.token_to_docid[tok].add(self.doc_seq_no)
@@ -131,11 +131,11 @@ class TfidfVectorizer:
         tuid = self.tuid
         tf_vec = [0.0] * self.max_dim
         for token, count in tokens.items():
-            uid = tuid.token_to_uid[token]
+            uid = tuid.token_to_id[token]
             tf_vec[uid] += count
 
         for uid in range(self.max_dim):
-            token = tuid.uid_to_token[uid]
+            token = tuid.id_to_token[uid]
             tf_vec[uid] *= tuid.idf[token]
 
         return self.dim_red.transform(np.array(tf_vec) / len(tokens))
