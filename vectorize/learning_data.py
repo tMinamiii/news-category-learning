@@ -40,11 +40,9 @@ class Token:
                 for row in reader:
                     if len(row) != 4:
                         continue
-                    wc = int(row[2])
-                    if wc < self.min_manuscript_len:
+                    if int(row[2]) < self.min_manuscript_len:
                         continue
-                    manuscript = row[3]
-                    filtered = filter_manuscript(manuscript)
+                    filtered = filter_manuscript(row[3])
                     tokens = tokenize(filtered)
                     if tokens is None or len(tokens) < self.min_token_len:
                         continue
@@ -56,7 +54,7 @@ class Token:
         self.update_idf()
 
     def update_token_dics(self, token_counter: dict):
-        for tok in token_counter.items():
+        for tok, _ in token_counter.items():
             if tok not in self.token_to_id:
                 self.token_to_id[tok] = self.token_seq_no
                 self.id_to_token[self.token_seq_no] = tok
@@ -114,31 +112,28 @@ class TfidfVectorizer:
         data = []
         append = data.append
         for line in tokenized_news:
+            category = line[0]
             token_counter = line[1]
             tf_vec = self.calc_tfidf(token_counter)
-            category = line[0]
             category_vec = [0] * self.cat_len
             category_vec[self.cat_list.index(category)] = 1
             append((category_vec, tf_vec))
 
         return np.array(data)
 
-    def calc_tfidf(self, tokens: list) -> np.array:
+    def calc_tfidf(self, token_counter: Counter) -> np.array:
         '''
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
         '''
         tuid = self.tuid
         tf_vec = [0.0] * self.max_dim
-        for token, count in tokens.items():
+        for token, count in token_counter.items():
             uid = tuid.token_to_id[token]
-            tf_vec[uid] += count
+            tf_vec[uid] = float(count) / \
+                sum(token_counter.values()) * tuid.idf[token]
 
-        for uid in range(self.max_dim):
-            token = tuid.id_to_token[uid]
-            tf_vec[uid] *= tuid.idf[token]
-
-        return self.dim_red.transform(np.array(tf_vec) / len(tokens))
+        return self.dim_red.transform(np.array(tf_vec) / len(token_counter))
 
 
 def dump(dumpdata, filepath: str) -> None:

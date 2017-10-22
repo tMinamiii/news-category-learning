@@ -6,12 +6,10 @@ class TestTokenUID(unittest.TestCase):
 
     def test_construct1(self):
         csv_list = ['tests/test1.csv']
-        tuid = ld.Token(300, 100)
+        tuid = ld.Token(0, 0)
         tuid.update(csv_list)
         self.assertEqual(tuid.token_seq_no, 4)
         self.assertEqual(tuid.loaded_csv_paths, csv_list)
-        self.assertEqual(tuid.token_to_id, {
-                         '汎用': 1, '言語': 3, 'Python': 0, 'プログラミング': 2})
 
     def test_construct2(self):
         csv_list = ['tests/test2.csv']
