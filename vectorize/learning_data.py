@@ -24,6 +24,7 @@ class Token:
         self.token_to_id = {}
         self.id_to_token = {}
         self.categories = set()
+        self.category_dic = {}
         self.token_seq_no = 0
         self.doc_seq_no = 0
         self.token_to_docid = {}
@@ -52,6 +53,15 @@ class Token:
                     self.update_token_dics(token_counter)
                     self.tokenized_news.append([row[0], token_counter])
         self.update_idf()
+        self.update_category_dic()
+
+    def update_category_dic(self):
+        cat_list = list(self.categories)
+        cat_len = len(self.categories)
+        for cat in cat_list:
+            category_vec = [0] * cat_len
+            category_vec[cat_list.index(cat)] = 1
+            self.category_dic[cat] = category_vec
 
     def update_token_dics(self, token_counter: dict):
         for tok, _ in token_counter.items():
@@ -115,8 +125,7 @@ class TfidfVectorizer:
             category = line[0]
             token_counter = line[1]
             tf_vec = self.calc_tfidf(token_counter)
-            category_vec = [0] * self.cat_len
-            category_vec[self.cat_list.index(category)] = 1
+            category_vec = self.tuid.category_dic[category]
             append((category_vec, tf_vec))
 
         return np.array(data)
@@ -128,12 +137,12 @@ class TfidfVectorizer:
         '''
         tuid = self.tuid
         tf_vec = [0.0] * self.max_dim
+        total_tokens = sum(token_counter.values())
         for token, count in token_counter.items():
             uid = tuid.token_to_id[token]
-            tf_vec[uid] = float(count) / \
-                sum(token_counter.values()) * tuid.idf[token]
+            tf_vec[uid] = float(count) / total_tokens * tuid.idf[token]
 
-        return self.dim_red.transform(np.array(tf_vec) / len(token_counter))
+        return self.dim_red.transform(np.array(tf_vec))
 
 
 def dump(dumpdata, filepath: str) -> None:
