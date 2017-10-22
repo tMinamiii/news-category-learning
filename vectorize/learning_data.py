@@ -3,6 +3,7 @@ import math
 import pickle
 import re
 from abc import ABCMeta, abstractmethod
+from collections import Counter
 
 import numpy as np
 import scipy.sparse.linalg
@@ -20,12 +21,12 @@ class Token:
 
     def __init__(self, min_manuscript_len: int, min_token_len: int):
         self.loaded_csv_paths = []
-        self.token_to_uid = {}
+        self.token_to_id = {}
         self.uid_to_token = {}
         self.categories = set()
         self.token_seq_no = 0
         self.doc_seq_no = 0
-        self.token_to_doc_uids = {}
+        self.token_to_docid = {}
         self.min_manuscript_len = min_manuscript_len
         self.min_token_len = min_token_len
         self.tokenized_news = []
@@ -47,27 +48,29 @@ class Token:
                     tokens = tokenize(filtered)
                     if tokens is None or len(tokens) < self.min_token_len:
                         continue
+                    # カウンターオブジェクトにして重複を排除する
+                    token_counter = Counter(tokens)
                     self.categories.add(row[0])
-                    self.update_token_dics(tokens)
-                    self.tokenized_news.append([row[0], tokens])
+                    self.update_token_dics(token_counter)
+                    self.tokenized_news.append([row[0], token_counter])
         self.update_idf()
 
-    def update_token_dics(self, tokens: list):
-        for tok in tokens:
-            if tok not in self.token_to_uid:
-                self.token_to_uid[tok] = self.token_seq_no
+    def update_token_dics(self, token_counter: dict):
+        for tok in token_counter.items():
+            if tok not in self.token_to_id:
+                self.token_to_id[tok] = self.token_seq_no
                 self.uid_to_token[self.token_seq_no] = tok
                 self.token_seq_no += 1
-                if tok in self.token_to_doc_uids:
-                    self.token_to_doc_uids[tok].add(self.doc_seq_no)
+                if tok in self.token_to_docid:
+                    self.token_to_docid[tok].add(self.doc_seq_no)
                 else:
-                    self.token_to_doc_uids[tok] = set([self.doc_seq_no])
+                    self.token_to_docid[tok] = set([self.doc_seq_no])
         self.doc_seq_no += 1
 
     def update_idf(self) -> float:
-        for token, _ in self.token_to_doc_uids.items():
+        for token, _ in self.token_to_docid.items():
             self.idf[token] = math.log(float(self.doc_seq_no) /
-                                       len(self.token_to_doc_uids[token])) + 1
+                                       len(self.token_to_docid[token])) + 1
 
 
 class DimensionReduction:
@@ -108,17 +111,17 @@ class TfidfVectorizer:
         self.dim_red = dim_red
 
     def vectorize(self, tokenized_news: list) -> np.array:
-        train_data = []
-        append = train_data.append
+        data = []
+        append = data.append
         for line in tokenized_news:
-            tokens = line[1]
-            tf_vec = self.calc_tfidf(tokens)
+            token_counter = line[1]
+            tf_vec = self.calc_tfidf(token_counter)
             category = line[0]
             category_vec = [0] * self.cat_len
             category_vec[self.cat_list.index(category)] = 1
             append((category_vec, tf_vec))
 
-        return np.array(train_data)
+        return np.array(data)
 
     def calc_tfidf(self, tokens: list) -> np.array:
         '''
@@ -127,9 +130,9 @@ class TfidfVectorizer:
         '''
         tuid = self.tuid
         tf_vec = [0.0] * self.max_dim
-        for tok in tokens:
-            uid = tuid.token_to_uid[str(tok)]
-            tf_vec[uid] += 1
+        for token, count in tokens.items():
+            uid = tuid.token_to_uid[token]
+            tf_vec[uid] += count
 
         for uid in range(self.max_dim):
             token = tuid.uid_to_token[uid]

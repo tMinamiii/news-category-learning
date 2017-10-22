@@ -31,7 +31,6 @@ def dump_all_csv(tuid: ld.Token,
     print('TUID data was dumped.')
     ld.dump(tuid, 'ldata/' + output_name + '.tuid')
     # td = ldata.make(tuid, all_news)
-    ld.dump(svd_ldata.dim_red, 'ldata/' + output_name + '.svd')
     td = svd_ldata.vectorize(tuid.tokenized_news)
     # ld.dump(td, 'ldata/' + output_name + '.td')
     ld.dump(td, 'ldata/' + output_name + '.svdtd')
