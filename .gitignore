@@ -4,3 +4,4 @@ csv
 tests/tokenuid.dump
 ldata
 .ipynb_checkpoints
+jupyter/**
