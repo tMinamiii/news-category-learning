@@ -1,4 +1,4 @@
-NUM_UNITS = 1000
+NUM_UNITS = 2000
 DATA_FILE = 'ldata/2017-10-21.svdtd'
 SVD_FILE = 'ldata/2017-10-21.svd'
 TUID_FILE = 'ldata/2017-10-21.tuid'
