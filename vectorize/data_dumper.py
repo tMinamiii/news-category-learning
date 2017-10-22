@@ -46,8 +46,7 @@ def dump_tuid(tuid: ld.Token):
 
 def main():
     csv_list = find_all_csvs()
-    tuid = ld.Token(c.MINIMUM_MANUSCRIPT_LENGTH,
-                    c.MINIMUM_TOKEN_LENGTH)
+    tuid = ld.Token()
     tuid.update(csv_list)
     # dump_tuid(tuid)
     svd = calc_svd(tuid)

@@ -6,14 +6,14 @@ class TestTokenUID(unittest.TestCase):
 
     def test_construct1(self):
         csv_list = ['tests/test1.csv']
-        tuid = ld.Token(0, 0)
+        tuid = ld.Token()
         tuid.update(csv_list)
         self.assertEqual(tuid.token_seq_no, 4)
         self.assertEqual(tuid.loaded_csv_paths, csv_list)
 
     def test_construct2(self):
         csv_list = ['tests/test2.csv']
-        tuid = ld.Token(300, 100)
+        tuid = ld.Token()
         tuid.update(csv_list)
         self.assertEqual(tuid.token_seq_no, 28)
         self.assertEqual(tuid.loaded_csv_paths, csv_list)
@@ -23,7 +23,7 @@ class TestTokenUID(unittest.TestCase):
     def test_dump_and_load(self):
         filepath = 'tests/tokenuid.dump'
         csv_list = ['tests/test2.csv']
-        tuid = ld.Token(300, 100)
+        tuid = ld.Token()
         tuid.update(csv_list)
         ld.dump(tuid, filepath)
         tuid2 = ld.load(filepath)
@@ -39,7 +39,7 @@ class TestLearningData(unittest.TestCase):
     '''
 
     csv_list = ['tests/test2.csv']
-    tuid = ld.Token(300, 100)
+    tuid = ld.Token()
     tuid.update(csv_list)
     ldata = ld.TfidfVectorizer(tuid)
 

@@ -9,6 +9,7 @@ import numpy as np
 import scipy.sparse.linalg
 from janome.tokenizer import Tokenizer
 
+import constant_values as c
 import mojimoji
 
 
@@ -19,7 +20,7 @@ class Token:
     UIDは単なる連番で、このクラスのtoken_dicに登録された順番で決まる。
     '''
 
-    def __init__(self, min_manuscript_len: int, min_token_len: int):
+    def __init__(self):
         self.loaded_csv_paths = []
         self.token_to_id = {}
         self.id_to_token = {}
@@ -28,12 +29,13 @@ class Token:
         self.token_seq_no = 0
         self.doc_seq_no = 0
         self.token_to_docid = {}
-        self.min_manuscript_len = min_manuscript_len
-        self.min_token_len = min_token_len
         self.tokenized_news = []
         self.idf = {}
+        self.token_to_tfidf = {}
 
-    def update(self, csv_paths: list):
+    def update(self, csv_paths: list,
+               min_manuscript_len: int = c.MINIMUM_MANUSCRIPT_LENGTH,
+               min_token_len: int = c.MINIMUM_TOKEN_LENGTH):
         for path in csv_paths:
             with open(path, 'r') as f:
                 reader = csv.reader(f)
@@ -41,17 +43,18 @@ class Token:
                 for row in reader:
                     if len(row) != 4:
                         continue
-                    if int(row[2]) < self.min_manuscript_len:
+                    if int(row[2]) < min_manuscript_len:
                         continue
                     filtered = filter_manuscript(row[3])
                     tokens = tokenize(filtered)
-                    if tokens is None or len(tokens) < self.min_token_len:
+                    if tokens is None or len(tokens) < min_token_len:
                         continue
                     # カウンターオブジェクトにして重複を排除する
                     token_counter = Counter(tokens)
                     self.categories.add(row[0])
                     self.update_token_dics(token_counter)
                     self.tokenized_news.append([row[0], token_counter])
+                    self.doc_seq_no += 1
         self.update_idf()
         self.update_category_dic()
 
@@ -73,7 +76,6 @@ class Token:
                     self.token_to_docid[tok].add(self.doc_seq_no)
                 else:
                     self.token_to_docid[tok] = set([self.doc_seq_no])
-        self.doc_seq_no += 1
 
     def update_idf(self) -> float:
         for token, _ in self.token_to_docid.items():
@@ -180,21 +182,21 @@ def tokenize(manuscript: str) -> list:
         print(manuscript)
         return None
     for tok in tokens:
-        ps = tok.part_of_speech.split(',')[0]
-        if ps not in ['名詞', '動詞', '形容詞']:
+        _ps = tok.part_of_speech.split(',')[0]
+        if _ps not in ['名詞', '動詞', '形容詞']:
             continue
         # 原形があれば原形をリストに入れる
-        w = tok.base_form
-        if w == '*' or w == '':
+        _w = tok.base_form
+        if _w == '*' or _w == '':
             # 原形がなければ表層系(原稿の単語そのまま)をリストに入れる
-            w = tok.surface
-        if w == '' or w == '\n':
+            _w = tok.surface
+        if _w == '' or _w == '\n':
             continue
         # 全角英数はすべて半角英数にする
-        w = mojimoji.zen_to_han(w, kana=False, digit=False)
+        _w = mojimoji.zen_to_han(_w, kana=False, digit=False)
         # 半角カタカナはすべて全角にする
-        w = mojimoji.han_to_zen(w, digit=False, ascii=False)
+        _w = mojimoji.han_to_zen(_w, digit=False, ascii=False)
         # 英語はすべて大文字にする
-        w = w.lower()
-        append(w)
+        _w = _w.lower()
+        append(_w)
     return token_list
