@@ -15,7 +15,19 @@ def find_all_csvs() -> list:
     return csv_list
 
 
-def constract(tfidf: ld.TfidfVectorizer, tokenized_news):
+def constract(tuid: ld.Token, tokenized_news):
+    tfidf = ld.TfidfVectorizer(tuid)
+    label_and_data = tfidf.vectorize(tokenized_news)
+    data = label_and_data[:, 1].tolist()
+    svd = ld.SparseSVD(data, c.SVD_DIMENSION)
+    svd_tdidf = ld.TfidfVectorizer(tuid, svd)
+    svd_label_and_data = svd_tdidf.vectorize(tokenized_news)
+    svd_label = svd_label_and_data[:, 0].tolist()
+    svd_data = svd_label_and_data[:, 1].tolist()
+    return svd_label, svd_data, svd_tdidf
+
+
+def batch_vectorize(tfidf: ld.TfidfVectorizer, tokenized_news):
     label_and_data = tfidf.vectorize(tokenized_news)
     label = label_and_data[:, 0].tolist()
     data = label_and_data[:, 1].tolist()
@@ -25,9 +37,6 @@ def constract(tfidf: ld.TfidfVectorizer, tokenized_news):
 def main():
     tuid = ld.load(c.TUID_FILE)
     print('TUID loaded')
-    svd = ld.load(c.SVD_FILE)
-    print('SVD loaded')
-    tfidf = ld.TfidfVectorizer(tuid, svd)
     print('Vectorizer initialized')
     num_categories = len(tuid.categories)
     tokenized_news = tuid.tokenized_news
@@ -39,21 +48,29 @@ def main():
     print(len(test_csv))
     print(len(train_csv))
 
-    test_label, test_data = constract(tfidf, test_csv)
+    test_label, test_data, _ = constract(tuid, test_csv)
     print('TEST DATA calculated')
     nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATIO, c.NUM_UNITS,
                                  c.SVD_DIMENSION, num_categories,
                                  c.LOG_FILE)
     i = 0
+    np.random.shuffle(train_csv)
+    svd_batch = train_csv[:c.SVD_BATCH_DATA_LENGTH]
+    _, _, svd_tfidf = constract(tuid, svd_batch)
     for _ in range(c.TOTAL_STEP):
         i += 1
 
+        if i % 5000 == 0:
+            np.random.shuffle(train_csv)
+            svd_batch = train_csv[:c.SVD_BATCH_DATA_LENGTH]
+            _, _, svd_tfidf = constract(tuid, svd_batch)
+
         np.random.shuffle(train_csv)
         batch_train = train_csv[:c.BATCH_SIZE]
-        train_label, train_data = constract(tfidf, batch_train)
-
+        train_label, train_data = batch_vectorize(svd_tfidf, batch_train)
         nn.sess.run(nn.train_step, feed_dict={
             nn.x: train_data, nn.t: train_label, nn.keep_prob: 0.5})
+
         if i % 100 == 0:
             summary, loss_val, acc_val = nn.sess.run(
                 [nn.summary, nn.loss, nn.accuracy],
