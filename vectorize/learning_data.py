@@ -196,7 +196,7 @@ def tokenize(manuscript: str) -> list:
         _w = mojimoji.zen_to_han(_w, kana=False, digit=False)
         # 半角カタカナはすべて全角にする
         _w = mojimoji.han_to_zen(_w, digit=False, ascii=False)
-        # 英語はすべて大文字にする
+        # 英語はすべて小文字にする
         _w = _w.lower()
         append(_w)
     return token_list
