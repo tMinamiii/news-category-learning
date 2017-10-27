@@ -29,7 +29,7 @@ def main():
     tuid = ld.Token()
     tuid.update(csv_list)
     print('TUID calculated')
-    ldata = ld.TfidfVectorizer(tuid, c.SVD_DIMENSION)
+    ldata = ld.TfidfVectorizer(tuid, c.PCA_DIMENSION)
     ldata.fit(tuid.tokenized_news)
     print('IncrementPCA fitting finished')
     td = ldata.vectorize(tuid.tokenized_news)

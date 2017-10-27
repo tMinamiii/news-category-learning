@@ -19,7 +19,7 @@ def constract(tuid: ld.Token, tokenized_news):
     tfidf = ld.TfidfVectorizer(tuid)
     label_and_data = tfidf.vectorize(tokenized_news)
     data = label_and_data[:, 1].tolist()
-    svd = ld.SparseSVD(data, c.SVD_DIMENSION)
+    svd = ld.SparseSVD(data, c.PCA_DIMENSION)
     svd_tdidf = ld.TfidfVectorizer(tuid, svd)
     svd_label_and_data = svd_tdidf.vectorize(tokenized_news)
     svd_label = svd_label_and_data[:, 0].tolist()
@@ -51,18 +51,18 @@ def main():
     test_label, test_data, _ = constract(tuid, test_csv)
     print('TEST DATA calculated')
     nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATIO, c.NUM_UNITS,
-                                 c.SVD_DIMENSION, num_categories,
+                                 c.PCA_DIMENSION, num_categories,
                                  c.LOG_FILE)
     i = 0
     np.random.shuffle(train_csv)
-    svd_batch = train_csv[:c.SVD_BATCH_DATA_LENGTH]
+    svd_batch = train_csv[:c.PCA_BATCH_DATA_LENGTH]
     _, _, svd_tfidf = constract(tuid, svd_batch)
     for _ in range(c.TOTAL_STEP):
         i += 1
 
         if i % 5000 == 0:
             np.random.shuffle(train_csv)
-            svd_batch = train_csv[:c.SVD_BATCH_DATA_LENGTH]
+            svd_batch = train_csv[:c.PCA_BATCH_DATA_LENGTH]
             _, _, svd_tfidf = constract(tuid, svd_batch)
 
         np.random.shuffle(train_csv)

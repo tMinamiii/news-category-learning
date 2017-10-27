@@ -10,10 +10,10 @@ MINIMUM_MANUSCRIPT_LENGTH = 300
 MINIMUM_TOKEN_LENGTH = 150
 # smaller equal than BATCH_SIZE
 # 最大にしたい場合はNoneを設定する
-SVD_DIMENSION = 500
+PCA_DIMENSION = 500
 
 CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
 # CATEGORIES = ['IT総合', '映画']
-SVD_BATCH_DATA_LENGTH = 1000
-SVD_DATA_LENGTH = 1500
+PCA_BATCH_DATA_LENGTH = 1000
+PCA_DATA_LENGTH = 1500

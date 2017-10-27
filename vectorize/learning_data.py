@@ -92,8 +92,8 @@ class TfidfVectorizer:
 
     def fit(self, tokenized_news: list) -> None:
         news_len = len(tokenized_news)
-        for i in range(0, news_len, c.SVD_DATA_LENGTH):
-            chunks = tokenized_news[i:i + c.SVD_DATA_LENGTH]
+        for i in range(0, news_len, c.PCA_DATA_LENGTH):
+            chunks = tokenized_news[i:i + c.PCA_DATA_LENGTH]
             mat = []
             for chunk in chunks:
                 vec = self.calc_tfidf(chunk[1])
