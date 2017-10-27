@@ -2,13 +2,13 @@ NUM_UNITS = 2000
 DATA_FILE = 'ldata/2017-10-27.td'
 TUID_FILE = 'ldata/2017-10-27.tuid'
 LOG_FILE = '/tmp/yn_categories_logs'
-BATCH_SIZE = 200
+BATCH_SIZE = 100
 TOTAL_STEP = 1000000
-LEARNING_RATE = 0.01  # 学習率
+LEARNING_RATE = 0.0001  # 学習率
 TRAINING_DATA_RATIO = 0.9  # 全データのうち訓練用に使う割合
 MINIMUM_MANUSCRIPT_LENGTH = 300
 MINIMUM_TOKEN_LENGTH = 150
-KEEP_PROB = 0.6
+KEEP_PROB = 0.5
 # smaller equal than BATCH_SIZE
 # 最大にしたい場合はNoneを設定する
 PCA_DIMENSION = 500
