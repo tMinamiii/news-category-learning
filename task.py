@@ -19,7 +19,7 @@ def main():
     predict_label = test[:, 0].tolist()
     predict_data = test[:, 1].tolist()
 
-    nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATIO, c.NUM_UNITS,
+    nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATE, c.NUM_UNITS,
                                  c.PCA_DIMENSION, num_categories, c.LOG_FILE)
     i = 0
     for _ in range(c.TOTAL_STEP):

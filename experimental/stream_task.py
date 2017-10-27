@@ -50,7 +50,7 @@ def main():
 
     test_label, test_data, _ = constract(tuid, test_csv)
     print('TEST DATA calculated')
-    nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATIO, c.NUM_UNITS,
+    nn = dlnn.DoubleLayerNetwork(c.LEARNING_RATE, c.NUM_UNITS,
                                  c.PCA_DIMENSION, num_categories,
                                  c.LOG_FILE)
     i = 0
