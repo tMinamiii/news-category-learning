@@ -2,13 +2,14 @@ import tensorflow as tf
 
 
 class DoubleLayerNetwork:
-    def __init__(self, learn_ratio, num_units,
+    def __init__(self, learning_rate, num_units,
                  vec_dim, num_categories, logfile):
         with tf.Graph().as_default():
-            self.prepare_model(learn_ratio, num_units, vec_dim, num_categories)
+            self.prepare_model(learning_rate, num_units,
+                               vec_dim, num_categories)
             self.prepare_session(logfile)
 
-    def prepare_model(self, learn_ratio, num_units, vec_dim, num_categories):
+    def prepare_model(self, learning_rate, num_units, vec_dim, num_categories):
         with tf.name_scope('input'):
             x = tf.placeholder(tf.float32, [None, vec_dim])
 
@@ -34,8 +35,8 @@ class DoubleLayerNetwork:
         with tf.name_scope('optimizer'):
             t = tf.placeholder(tf.float32, [None, num_categories])
             loss = -1 * tf.reduce_sum(t * tf.log(p))
-            train_step = tf.train.AdadeltaOptimizer(
-                learn_ratio).minimize(loss)
+            train_step = tf.train.AdamOptimizer(
+                learning_rate=learning_rate).minimize(loss)
 
         with tf.name_scope('evaluator'):
             correct_prediction = tf.equal(tf.argmax(p, 1), tf.argmax(t, 1))
@@ -43,12 +44,12 @@ class DoubleLayerNetwork:
 
         tf.summary.scalar('loss', loss)
         tf.summary.scalar('accuracy', accuracy)
-        tf.summary.histogram('weights_hidden2', w2)
-        tf.summary.histogram('biases_hidden2', b2)
-        tf.summary.histogram('weights_hidden1', w1)
-        tf.summary.histogram('biases_hidden1', b1)
-        tf.summary.histogram('weights_output', w0)
-        tf.summary.histogram('biases_output', b0)
+        # tf.summary.histogram('weights_hidden2', w2)
+        # tf.summary.histogram('biases_hidden2', b2)
+        # tf.summary.histogram('weights_hidden1', w1)
+        # tf.summary.histogram('biases_hidden1', b1)
+        # tf.summary.histogram('weights_output', w0)
+        # tf.summary.histogram('biases_output', b0)
 
         self.x = x
         self.t = t
