@@ -1,6 +1,7 @@
 import csv
 import math
 import pickle
+import random
 import re
 from collections import Counter
 
@@ -92,6 +93,7 @@ class TfidfVectorizer:
 
     def fit(self, tokenized_news: list) -> None:
         news_len = len(tokenized_news)
+        random.shuffle(tokenized_news)
         for i in range(0, news_len, c.PCA_DATA_LENGTH):
             chunks = tokenized_news[i:i + c.PCA_DATA_LENGTH]
             mat = []
