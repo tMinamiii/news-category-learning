@@ -1,7 +1,6 @@
 NUM_UNITS = 1000
-DATA_FILE = 'ldata/2017-10-22.svdtd'
-SVD_FILE = 'ldata/2017-10-22.svd'
-TUID_FILE = 'ldata/2017-10-22.tuid'
+DATA_FILE = 'ldata/2017-10-27.td'
+TUID_FILE = 'ldata/2017-10-27.tuid'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 200
 TOTAL_STEP = 1000000
