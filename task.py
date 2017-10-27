@@ -29,7 +29,7 @@ def main():
         batch_data = train[:c.BATCH_SIZE, 1].tolist()
 
         nn.sess.run(nn.train_step, feed_dict={
-            nn.x: batch_data, nn.t: batch_label, nn.keep_prob: 0.5})
+            nn.x: batch_data, nn.t: batch_label, nn.keep_prob: c.KEEP_PROB})
         if i % 100 == 0:
             summary, loss_val, acc_val = nn.sess.run(
                 [nn.summary, nn.loss, nn.accuracy],

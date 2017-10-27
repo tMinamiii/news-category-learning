@@ -8,6 +8,7 @@ LEARNING_RATE = 0.01  # 学習率
 TRAINING_DATA_RATIO = 0.9  # 全データのうち訓練用に使う割合
 MINIMUM_MANUSCRIPT_LENGTH = 300
 MINIMUM_TOKEN_LENGTH = 150
+KEEP_PROB = 0.6
 # smaller equal than BATCH_SIZE
 # 最大にしたい場合はNoneを設定する
 PCA_DIMENSION = 500
