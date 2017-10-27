@@ -108,7 +108,7 @@ class TfidfVectorizer:
             token_counter = news[1]
             tf_vec = self.calc_tfidf(token_counter)
             reshaped = np.array(tf_vec).reshape(1, -1)
-            dimred_tfidf = self.ipca.transform(reshaped)
+            dimred_tfidf = self.ipca.transform(reshaped)[0]
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
