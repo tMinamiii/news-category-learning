@@ -2,12 +2,11 @@ import csv
 import math
 import pickle
 import re
-from abc import ABCMeta, abstractmethod
 from collections import Counter
 
 import numpy as np
-import scipy.sparse.linalg
 from janome.tokenizer import Tokenizer
+from sklearn.decomposition import IncrementalPCA
 
 import constant_values as c
 import mojimoji
@@ -83,56 +82,37 @@ class Token:
                                        len(self.token_to_docid[token])) + 1
 
 
-class DimensionReduction:
-    __metaclass__ = ABCMeta
-
-    @abstractmethod
-    def transform(self, vecs: np.array) -> np.array:
-        pass
-
-
-class NoReduction(DimensionReduction):
-    def transform(self, vecs: np.array) -> np.array:
-        return vecs
-
-
-class SparseSVD(DimensionReduction):
-    def __init__(self, vecs: list, k: int = None):
-        if k is None:
-            k = len(vecs) - 1
-        _, _, self.V = scipy.sparse.linalg.svds(vecs, k=k)
-
-    def transform(self, vecs: np.array) -> np.array:
-        return np.dot(vecs, self.V.T)
-
-    def transform_each(self, matrix: np.array) -> list:
-        transform = self.transform
-        dimred_matrix = [transform(vec).tolist() for vec in matrix]
-        return dimred_matrix
-
-
 class TfidfVectorizer:
-    def __init__(self, tuid: Token,
-                 dim_red: DimensionReduction = NoReduction()):
+    def __init__(self, tuid: Token, dimension: int):
         self.tuid = tuid
         self.cat_list = list(self.tuid.categories)
         self.cat_len = len(self.tuid.categories)
         self.max_dim = self.tuid.token_seq_no
-        self.dim_red = dim_red
+        self.ipca = IncrementalPCA(n_components=dimension)
+
+    def fit(self, tokenized_news: list) -> None:
+        news_len = len(tokenized_news)
+        for i in range(0, news_len, c.SVD_DATA_LENGTH):
+            chunks = tokenized_news[i:i + c.SVD_DATA_LENGTH]
+            mat = []
+            for chunk in chunks:
+                vec = self.calc_tfidf(chunk[1])
+                mat.append(vec)
+            self.ipca.partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:
         data = []
-        append = data.append
-        for line in tokenized_news:
-            category = line[0]
-            token_counter = line[1]
-            tf_vec = self.calc_tfidf(token_counter)
+        for news in tokenized_news:
+            category = news[0]
             category_vec = self.tuid.category_dic[category]
-            append((category_vec, tf_vec))
-
+            token_counter = news[1]
+            tf_vec = self.calc_tfidf(token_counter)
+            reshaped = np.array(tf_vec).reshape(1, -1)
+            dimred_tfidf = self.ipca.transform(reshaped)
+            data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
-    def calc_tfidf(self, token_counter: Counter) -> np.array:
+    def calc_tfidf(self, token_counter: Counter) -> list:
         '''
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
@@ -144,7 +124,7 @@ class TfidfVectorizer:
             uid = tuid.token_to_id[token]
             tf_vec[uid] = float(count) / total_tokens * tuid.idf[token]
 
-        return self.dim_red.transform(np.array(tf_vec))
+        return tf_vec
 
 
 def dump(dumpdata, filepath: str) -> None:

@@ -17,4 +17,4 @@ CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
 # CATEGORIES = ['IT総合', '映画']
 SVD_BATCH_DATA_LENGTH = 1000
-SVD_DATA_LENGTH = 5000
+SVD_DATA_LENGTH = 700
