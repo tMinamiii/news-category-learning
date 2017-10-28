@@ -97,10 +97,7 @@ class TfidfVectorizer:
         random.shuffle(tokenized_news)
         for i in range(0, news_len, batch_size):
             chunks = tokenized_news[i:i + batch_size]
-            mat = []
-            for chunk in chunks:
-                vec = self.calc_tfidf(chunk[1])
-                mat.append(vec)
+            mat = [self.tfidf(c[1]) for c in chunks]
             self.ipca.partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:
@@ -109,13 +106,13 @@ class TfidfVectorizer:
             category = news[0]
             category_vec = self.tuid.category_dic[category]
             token_counter = news[1]
-            tf_vec = self.calc_tfidf(token_counter)
+            tf_vec = self.tfidf(token_counter)
             reshaped = np.array(tf_vec).reshape(1, -1)
             dimred_tfidf = self.ipca.transform(reshaped)[0]
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
-    def calc_tfidf(self, token_counter: Counter) -> list:
+    def tfidf(self, token_counter: Counter) -> list:
         '''
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
