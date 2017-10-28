@@ -91,11 +91,12 @@ class TfidfVectorizer:
         self.max_dim = self.tuid.token_seq_no
         self.ipca = IncrementalPCA(n_components=dimension)
 
-    def fit(self, tokenized_news: list) -> None:
+    def fit(self, tokenized_news: list,
+            batch_size: int = c.PCA_BATCH_DATA_LENGTH) -> None:
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
-        for i in range(0, news_len, c.PCA_DATA_LENGTH):
-            chunks = tokenized_news[i:i + c.PCA_DATA_LENGTH]
+        for i in range(0, news_len, batch_size):
+            chunks = tokenized_news[i:i + batch_size]
             mat = []
             for chunk in chunks:
                 vec = self.calc_tfidf(chunk[1])
