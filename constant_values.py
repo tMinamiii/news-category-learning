@@ -1,17 +1,17 @@
-NUM_UNITS = 2000
+NUM_UNITS = 4000
 DATA_FILE = 'ldata/2017-10-28.td'
 TUID_FILE = 'ldata/2017-10-28.tuid'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 100
 TOTAL_STEP = 1000000
-LEARNING_RATE = 0.0000005  # 学習率
+LEARNING_RATE = 0.000001  # 学習率
 TRAINING_DATA_RATIO = 0.9  # 全データのうち訓練用に使う割合
 MINIMUM_MANUSCRIPT_LENGTH = 300
-MINIMUM_TOKEN_LENGTH = 200
+MINIMUM_TOKEN_LENGTH = 100
 KEEP_PROB = 0.5
 # smaller equal than BATCH_SIZE
 # 最大にしたい場合はNoneを設定する
-PCA_DIMENSION = 500
+PCA_DIMENSION = 200
 
 CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
