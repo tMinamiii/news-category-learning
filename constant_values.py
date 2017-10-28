@@ -11,10 +11,10 @@ MINIMUM_TOKEN_LENGTH = 100
 KEEP_PROB = 0.5
 # smaller equal than BATCH_SIZE
 # 最大にしたい場合はNoneを設定する
-PCA_DIMENSION = 200
+PCA_DIMENSION = 1000
 
 CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
 # CATEGORIES = ['IT総合', '映画']
 PCA_BATCH_DATA_LENGTH = 1000
-PCA_DATA_LENGTH = 1000
+PCA_DATA_LENGTH = 1500
