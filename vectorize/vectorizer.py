@@ -9,11 +9,10 @@ import numpy as np
 from janome.tokenizer import Tokenizer
 from sklearn.decomposition import IncrementalPCA
 
-import constant_values as c
 import mojimoji
 
 
-class Token:
+class Preprocessor:
     '''
     ニュースのCSVを読み込んで、学習用データに変換する。
     ニュース原稿はTokenizeされ、各単語にUnique IDを割り振る。
@@ -33,9 +32,9 @@ class Token:
         self.idf = {}
         self.token_to_tfidf = {}
 
-    def update(self, csv_paths: list,
-               min_manuscript_len: int = c.MINIMUM_MANUSCRIPT_LENGTH,
-               min_token_len: int = c.MINIMUM_TOKEN_LENGTH):
+    def append(self, csv_paths: list,
+               min_manuscript_len: int,
+               min_token_len: int):
         for path in csv_paths:
             with open(path, 'r') as f:
                 reader = csv.reader(f)
@@ -83,16 +82,16 @@ class Token:
                                        len(self.token_to_docid[token])) + 1
 
 
-class TfidfVectorizer:
-    def __init__(self, tuid: Token, dimension: int):
-        self.tuid = tuid
-        self.cat_list = list(self.tuid.categories)
-        self.cat_len = len(self.tuid.categories)
-        self.max_dim = self.tuid.token_seq_no
+class PCATfidfVectorizer:
+    def __init__(self, prep: Preprocessor, dimension: int):
+        self.prep = prep
+        self.cat_list = list(self.prep.categories)
+        self.cat_len = len(self.prep.categories)
+        self.max_dim = self.prep.token_seq_no
         self.ipca = IncrementalPCA(n_components=dimension)
 
     def fit(self, tokenized_news: list,
-            batch_size: int = c.PCA_BATCH_DATA_LENGTH) -> None:
+            batch_size: int) -> None:
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
         for i in range(0, news_len, batch_size):
@@ -104,7 +103,7 @@ class TfidfVectorizer:
         data = []
         for news in tokenized_news:
             category = news[0]
-            category_vec = self.tuid.category_dic[category]
+            category_vec = self.prep.category_dic[category]
             token_counter = news[1]
             tf_vec = self.tfidf(token_counter)
             reshaped = np.array(tf_vec).reshape(1, -1)
@@ -117,12 +116,12 @@ class TfidfVectorizer:
          素性に割り振られた連番のユニークIDをもとに
         TFベクトル(Term Frequency)を求める。
         '''
-        tuid = self.tuid
+        prep = self.prep
         tf_vec = [0.0] * self.max_dim
         total_tokens = sum(token_counter.values())
         for token, count in token_counter.items():
-            uid = tuid.token_to_id[token]
-            tf_vec[uid] = float(count) / total_tokens * tuid.idf[token]
+            uid = prep.token_to_id[token]
+            tf_vec[uid] = float(count) / total_tokens * prep.idf[token]
 
         return tf_vec
 

@@ -4,7 +4,7 @@ import glob
 import numpy as np
 
 import constant_values as c
-import vectorize.learning_data as ld
+import vectorize.vectorizer as ld
 
 
 def find_all_csvs() -> list:
@@ -15,26 +15,27 @@ def find_all_csvs() -> list:
     return csv_list
 
 
-def dump_data(tuid: ld.Token, td: np.array):
+def dump_data(prep: ld.Preprocessor, data_for_learn: np.array):
     current_time = datetime.datetime.now()
     output_name = current_time.strftime('%Y-%m-%d')
-    print('TUID data was dumped.')
-    ld.dump(tuid, 'ldata/' + output_name + '.tuid')
-    ld.dump(td, 'ldata/' + output_name + '.td')
+    ld.dump(prep, 'ldata/' + output_name + '.prep')
+    print('Preprocessed data was dumped.')
+    ld.dump(data_for_learn, 'ldata/' + output_name + '.td')
     print('Learning data was dumped.')
 
 
 def main():
     csv_list = find_all_csvs()
-    tuid = ld.Token()
-    tuid.update(csv_list)
+    prep = ld.Preprocessor()
+    prep.append(csv_list, min_manuscript_len=c.MINIMUM_MANUSCRIPT_LENGTH,
+                min_token_len=c.MINIMUM_TOKEN_LENGTH)
     print('TUID calculated')
-    ldata = ld.TfidfVectorizer(tuid, c.PCA_DIMENSION)
-    ldata.fit(tuid.tokenized_news)
+    vectorizer = ld.PCATfidfVectorizer(prep, c.PCA_DIMENSION)
+    vectorizer.fit(prep.tokenized_news, c.PCA_BATCH_DATA_LENGTH)
     print('IncrementPCA fitting finished')
-    td = ldata.vectorize(tuid.tokenized_news)
+    data_for_learn = vectorizer.vectorize(prep.tokenized_news)
     print('vectorizing finished')
-    dump_data(tuid, td)
+    dump_data(prep, data_for_learn)
 
 
 if __name__ == '__main__':

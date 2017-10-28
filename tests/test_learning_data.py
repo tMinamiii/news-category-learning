@@ -1,20 +1,23 @@
 import unittest
-import vectorize.learning_data as ld
+import vectorize.vectorizer as ld
+import constant_values as c
 
 
 class TestTokenUID(unittest.TestCase):
 
     def test_construct1(self):
         csv_list = ['tests/test1.csv']
-        tuid = ld.Token()
-        tuid.update(csv_list)
+        tuid = ld.Preprocessor()
+        tuid.append(csv_list, min_manuscript_len=c.MINIMUM_MANUSCRIPT_LENGTH,
+                    min_token_len=c.MINIMUM_TOKEN_LENGTH)
         self.assertEqual(tuid.token_seq_no, 4)
         self.assertEqual(tuid.loaded_csv_paths, csv_list)
 
     def test_construct2(self):
         csv_list = ['tests/test2.csv']
-        tuid = ld.Token()
-        tuid.update(csv_list)
+        tuid = ld.Preprocessor()
+        tuid.append(csv_list, min_manuscript_len=c.MINIMUM_MANUSCRIPT_LENGTH,
+                    min_token_len=c.MINIMUM_TOKEN_LENGTH)
         self.assertEqual(tuid.token_seq_no, 28)
         self.assertEqual(tuid.loaded_csv_paths, csv_list)
         self.assertEqual(tuid.token_to_id, {'プログラミング': 2, 'する': 9, '部分': 23, '最小限': 25, '汎用': 1, 'Python': 0, 'られる': 27, '設計': 8, '特徴': 18, 'シンプル': 5, '本体': 22, '抑える': 26,
@@ -23,8 +26,9 @@ class TestTokenUID(unittest.TestCase):
     def test_dump_and_load(self):
         filepath = 'tests/tokenuid.dump'
         csv_list = ['tests/test2.csv']
-        tuid = ld.Token()
-        tuid.update(csv_list)
+        tuid = ld.Preprocessor()
+        tuid.append(csv_list, min_manuscript_len=c.MINIMUM_MANUSCRIPT_LENGTH,
+                    min_token_len=c.MINIMUM_TOKEN_LENGTH)
         ld.dump(tuid, filepath)
         tuid2 = ld.load(filepath)
         self.assertEqual(tuid2.seq_no_uid, 28)
@@ -39,9 +43,10 @@ class TestLearningData(unittest.TestCase):
     '''
 
     csv_list = ['tests/test2.csv']
-    tuid = ld.Token()
-    tuid.update(csv_list)
-    ldata = ld.TfidfVectorizer(tuid)
+    tuid = ld.Preprocessor()
+    tuid.append(csv_list, min_manuscript_len=c.MINIMUM_MANUSCRIPT_LENGTH,
+                min_token_len=c.MINIMUM_TOKEN_LENGTH)
+    ldata = ld.PCATfidfVectorizer(tuid)
 
 
 if __name__ == '__main__':

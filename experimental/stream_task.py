@@ -4,7 +4,7 @@ import numpy as np
 
 import constant_values as c
 import double_layer_nn as dlnn
-import vectorize.learning_data as ld
+import vectorize.vectorizer as ld
 
 
 def find_all_csvs() -> list:
@@ -15,19 +15,19 @@ def find_all_csvs() -> list:
     return csv_list
 
 
-def constract(tuid: ld.Token, tokenized_news):
-    tfidf = ld.TfidfVectorizer(tuid)
+def constract(tuid: ld.Preprocessor, tokenized_news):
+    tfidf = ld.PCATfidfVectorizer(tuid)
     label_and_data = tfidf.vectorize(tokenized_news)
     data = label_and_data[:, 1].tolist()
     svd = ld.SparseSVD(data, c.PCA_DIMENSION)
-    svd_tdidf = ld.TfidfVectorizer(tuid, svd)
+    svd_tdidf = ld.PCATfidfVectorizer(tuid, svd)
     svd_label_and_data = svd_tdidf.vectorize(tokenized_news)
     svd_label = svd_label_and_data[:, 0].tolist()
     svd_data = svd_label_and_data[:, 1].tolist()
     return svd_label, svd_data, svd_tdidf
 
 
-def batch_vectorize(tfidf: ld.TfidfVectorizer, tokenized_news):
+def batch_vectorize(tfidf: ld.PCATfidfVectorizer, tokenized_news):
     label_and_data = tfidf.vectorize(tokenized_news)
     label = label_and_data[:, 0].tolist()
     data = label_and_data[:, 1].tolist()
@@ -35,7 +35,7 @@ def batch_vectorize(tfidf: ld.TfidfVectorizer, tokenized_news):
 
 
 def main():
-    tuid = ld.load(c.TUID_FILE)
+    tuid = ld.load(c.PREPROCESSED_FILE)
     print('TUID loaded')
     print('Vectorizer initialized')
     num_categories = len(tuid.categories)

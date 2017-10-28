@@ -2,11 +2,11 @@ import numpy as np
 
 import constant_values as c
 import double_layer_nn as dlnn
-import vectorize.learning_data as ld
+import vectorize.vectorizer as ld
 
 
 def main():
-    tuid = ld.load(c.TUID_FILE)
+    prep = ld.load(c.PREPROCESSED_FILE)
     label_and_data = ld.load(c.DATA_FILE)
     np.random.shuffle(label_and_data)
     length = len(label_and_data)
@@ -15,7 +15,7 @@ def main():
     train = label_and_data[0:boundary - 1]
     print(len(test))
     print(len(train))
-    num_categories = len(tuid.categories)
+    num_categories = len(prep.categories)
     predict_label = test[:, 0].tolist()
     predict_data = test[:, 1].tolist()
 
