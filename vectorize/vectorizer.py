@@ -14,9 +14,9 @@ import mojimoji
 
 class Preprocessor:
     '''
-    ニュースのCSVを読み込んで、学習用データに変換する。
-    ニュース原稿はTokenizeされ、各単語にUnique IDを割り振る。
-    UIDは単なる連番で、このクラスのtoken_dicに登録された順番で決まる。
+    ニュースのCSVを読み込んで、学習用データの前処理を施していく。
+    ニュース原稿を形態素解析にかけ、Counterを用いて出現頻度を数えておく。
+    また各単語のIDFも前処理で計算して連想配列に保存しておく。
     '''
 
     def __init__(self):
@@ -48,7 +48,7 @@ class Preprocessor:
                     tokens = tokenize(filtered)
                     if tokens is None or len(tokens) < min_token_len:
                         continue
-                    # カウンターオブジェクトにして重複を排除する
+                    # Counterで単語の出現頻度を数える
                     token_counter = Counter(tokens)
                     self.categories.add(row[0])
                     self.update_token_dics(token_counter)
@@ -83,6 +83,10 @@ class Preprocessor:
 
 
 class PCATfidfVectorizer:
+    '''
+    TF-IDFベクトルを作成し主成分分析(IncrementalPCA)を適用するクラス
+    '''
+
     def __init__(self, prep: Preprocessor, dimension: int):
         self.prep = prep
         self.cat_list = list(self.prep.categories)
@@ -90,8 +94,11 @@ class PCATfidfVectorizer:
         self.max_dim = self.prep.token_seq_no
         self.ipca = IncrementalPCA(n_components=dimension)
 
-    def fit(self, tokenized_news: list,
-            batch_size: int) -> None:
+    def fit(self, tokenized_news: list, batch_size: int) -> None:
+        '''
+         batch_sizeで指定した数値ずつtokenized_newsを
+         主成分分析にかけていく
+        '''
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
         for i in range(0, news_len, batch_size):
@@ -100,6 +107,9 @@ class PCATfidfVectorizer:
             self.ipca.partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:
+        '''
+         tokenized_newsのTF-IDFベクトルを求めたのち主成分分析で次元削減する
+        '''
         data = []
         for news in tokenized_news:
             category = news[0]
@@ -113,8 +123,7 @@ class PCATfidfVectorizer:
 
     def tfidf(self, token_counter: Counter) -> list:
         '''
-         素性に割り振られた連番のユニークIDをもとに
-        TFベクトル(Term Frequency)を求める。
+        TF-IDFベクトルを求める。
         '''
         prep = self.prep
         tf_vec = [0.0] * self.max_dim
