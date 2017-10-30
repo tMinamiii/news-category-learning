@@ -3,6 +3,7 @@ import math
 import pickle
 import random
 import re
+from array import array
 from collections import Counter
 
 import numpy as np
@@ -116,6 +117,7 @@ class PCATfidfVectorizer:
             token_counter = news[1]
             tf_vec = self.tfidf(token_counter)
             reshaped = np.array(tf_vec).reshape(1, -1)
+            # transformの結果は2重リストになっているので、最初の要素を取り出す
             dimred_tfidf = self.ipca.transform(reshaped)[0]
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
@@ -125,7 +127,7 @@ class PCATfidfVectorizer:
         TF-IDFベクトルを求める。
         '''
         prep = self.prep
-        tf_vec = [0.0] * self.max_dim
+        tf_vec = array('d', [0] * self.max_dim)
         total_tokens = sum(token_counter.values())
         for token, count in token_counter.items():
             uid = prep.token_to_id[token]
