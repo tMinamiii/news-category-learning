@@ -71,15 +71,14 @@ class Preprocessor:
                 self.token_to_id[tok] = self.token_seq_no
                 self.id_to_token[self.token_seq_no] = tok
                 self.token_seq_no += 1
-                if tok in self.token_to_docid:
-                    self.token_to_docid[tok].add(self.doc_seq_no)
-                else:
-                    self.token_to_docid[tok] = set([self.doc_seq_no])
+            if tok in self.token_to_docid:
+                self.token_to_docid[tok].add(self.doc_seq_no)
+            else:
+                self.token_to_docid[tok] = set([self.doc_seq_no])
 
     def update_idf(self) -> float:
-        for token, _ in self.token_to_docid.items():
-            self.idf[token] = math.log(float(self.doc_seq_no) /
-                                       len(self.token_to_docid[token])) + 1
+        self.idf = {token: math.log(self.doc_seq_no / len(docids)) + 1
+                    for token, docids in self.token_to_docid.items()}
 
 
 class PCATfidfVectorizer:
@@ -130,7 +129,7 @@ class PCATfidfVectorizer:
         total_tokens = sum(token_counter.values())
         for token, count in token_counter.items():
             uid = prep.token_to_id[token]
-            tf_vec[uid] = float(count) / total_tokens * prep.idf[token]
+            tf_vec[uid] = count / total_tokens * prep.idf[token]
 
         return tf_vec
 
