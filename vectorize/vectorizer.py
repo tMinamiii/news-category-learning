@@ -72,14 +72,14 @@ class Preprocessor:
                 self.token_to_id[tok] = self.token_seq_no
                 self.id_to_token[self.token_seq_no] = tok
                 self.token_seq_no += 1
-            if tok in self.token_to_docid:
-                self.token_to_docid[tok].add(self.doc_seq_no)
-            else:
-                self.token_to_docid[tok] = set([self.doc_seq_no])
+            self.token_to_docid.setdefault(tok, set()).add(self.doc_seq_no)
 
-    def update_idf(self) -> float:
-        self.idf = {token: math.log(self.doc_seq_no / len(docids)) + 1
+    def update_idf(self) -> dict:
+        self.idf = {token: self.__idf(docids)
                     for token, docids in self.token_to_docid.items()}
+
+    def __idf(self, docids) -> float:
+        return math.log(self.doc_seq_no / len(docids)) + 1
 
 
 class PCATfidfVectorizer:
@@ -122,7 +122,7 @@ class PCATfidfVectorizer:
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
-    def tfidf(self, token_counter: Counter) -> list:
+    def tfidf(self, token_counter: Counter) -> array:
         '''
         TF-IDFベクトルを求める。
         '''
