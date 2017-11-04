@@ -49,12 +49,9 @@ class YahooNewsScraper:
             return False
         date_format = '%a, %d %b %Y %H:%M:%S %z'
         pubdate = datetime.datetime.strptime(pubdate_str, date_format)
-        if pubdate.date() >= specified_date.date():
-            # 指定した日付より後のニュースは最新ニュースとして扱う
-            return False
-        else:
-            # 指定した日付よりも前のニュースは古いのでTrue
-            return True
+        # 指定した日付より後のニュースは最新ニュースとして扱う
+        # 指定した日付よりも前のニュースは古いのでTrue
+        return pubdate.date() < specified_date.date()
 
     def scrape_news(self, rss_url, sleep=1, date=None) -> dict:
         xml = req.urlopen(rss_url).read()
@@ -71,10 +68,7 @@ class YahooNewsScraper:
             try:
                 manuscript = self.read_manuscript(link)
                 chunk = NewsChunk(category, title, manuscript)
-                if category in news_dic:
-                    news_dic[category].append(chunk)
-                else:
-                    news_dic[category] = [chunk]
+                news_dic.setdefault(category, []).append(chunk)
             except urllib.error.HTTPError as http_error:
                 print(http_error.msg)
                 print('Error url = ' + link)
