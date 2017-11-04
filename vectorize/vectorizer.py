@@ -121,7 +121,7 @@ class PCATfidfVectorizer:
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
-    def tfidf(self, token_counter: Counter) -> array:
+    def tfidf(self, token_counter: Counter) -> list:
         '''
         TF-IDFベクトルを求める。
         '''
