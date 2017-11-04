@@ -31,7 +31,6 @@ class Preprocessor:
         self.token_to_docid = {}
         self.tokenized_news = []
         self.idf = {}
-        self.token_to_tfidf = {}
 
     def append(self, csv_paths: list,
                min_manuscript_len: int,
@@ -45,7 +44,7 @@ class Preprocessor:
                         continue
                     if int(row[2]) < min_manuscript_len:
                         continue
-                    filtered = filter_manuscript(row[3])
+                    filtered = sanitize(row[3])
                     tokens = tokenize(filtered)
                     if tokens is None or len(tokens) < min_token_len:
                         continue
@@ -127,7 +126,7 @@ class PCATfidfVectorizer:
         TF-IDFベクトルを求める。
         '''
         prep = self.prep
-        tf_vec = array('d', [0] * self.max_dim)
+        tf_vec = [0.0] * self.max_dim
         total_tokens = sum(token_counter.values())
         for token, count in token_counter.items():
             uid = prep.token_to_id[token]
@@ -147,16 +146,16 @@ def load(filepath: str):
         return pickle.load(f)
 
 
-def filter_manuscript(manuscript: str) -> str:
+def sanitize(manu: str) -> str:
     # 英文を取り除く（日本語の中の英字はそのまま）
-    manuscript = re.sub(r'[a-zA-Z0-9]+[ \,\.\':;\-\+?!]', '', manuscript)
+    manu = re.sub(r'[a-zA-Z0-9]+[ \,\.\':;\-\+?!]', '', manu)
     # 記号や数字は「、」に変換する。
     # (単純に消してしまうと意味不明な長文になりjanomeがエラーを起こす)
-    manuscript = re.sub(r'[0-9]+', '、', manuscript)
-    manuscript = re.sub(
-        r'[!"“#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}~]+', '、', manuscript)
-    manuscript = re.sub(r'[（）【】『』｛｝「」［］《》〈〉]', '、', manuscript)
-    return manuscript
+    manu = re.sub(r'[0-9]+', '0', manu)
+    manu = re.sub(
+        r'[!"#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}]+', '、', manu)
+    manu = re.sub(r'[“（）【】『』｛｝「」［］《》〈〉]', '、', manu)
+    return manu
 
 
 tokenizer = Tokenizer()
