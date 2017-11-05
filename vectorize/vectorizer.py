@@ -101,7 +101,7 @@ class PCATfidfVectorizer:
         random.shuffle(tokenized_news)
         for i in range(0, news_len, batch_size):
             chunks = tokenized_news[i:i + batch_size]
-            mat = [self.tfidf(c[1]) for c in chunks]
+            mat = np.array([self.tfidf(c[1]) for c in chunks])
             self.ipca.partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:
@@ -112,11 +112,10 @@ class PCATfidfVectorizer:
         for news in tokenized_news:
             category = news[0]
             category_vec = self.prep.category_dic[category]
-            token_counter = news[1]
-            tf_vec = self.tfidf(token_counter)
-            reshaped = np.array(tf_vec).reshape(1, -1)
+            tc = news[1]
+            tfidf = np.array(self.tfidf(tc)).reshape(1, -1)
             # transformの結果は2重リストになっているので、最初の要素を取り出す
-            dimred_tfidf = self.ipca.transform(reshaped)[0]
+            dimred_tfidf = self.ipca.transform(tfidf)[0]
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
