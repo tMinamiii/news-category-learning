@@ -93,6 +93,7 @@ class YahooRSSScraper:
                 # print(area)
                 titles = area.select('div.ymuiHeaderBGLight > h4.ymuiTitle')
                 containers = area.select('div.ymuiContainer')
+                break
         for t_ml, con in zip(titles, containers):
             title = t_ml.contents[0]
             links = con.select('ul.ymuiList > li.ymuiArrow > dl')
@@ -100,8 +101,8 @@ class YahooRSSScraper:
             for link in links:
                 name = link.select_one('dt').string
                 url = link.select_one('dd > a').get('href')
-                news_dic.update({name: url})
-            self.rss_dic.update({title: news_dic})
+                news_dic[name] = url
+            self.rss_dic[title] = news_dic
 
     def scrape_jp_newslist(self) -> dict:
         return self.rss_dic['国内']

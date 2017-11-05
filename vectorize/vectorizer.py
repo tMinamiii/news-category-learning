@@ -3,7 +3,6 @@ import math
 import pickle
 import random
 import re
-from array import array
 from collections import Counter
 
 import numpy as np
@@ -151,7 +150,7 @@ def sanitize(manu: str) -> str:
     manu = re.sub(r'[a-zA-Z0-9]+[ \,\.\':;\-\+?!]', '', manu)
     # 記号や数字は「、」に変換する。
     # (単純に消してしまうと意味不明な長文になりjanomeがエラーを起こす)
-    manu = re.sub(r'[0-9]+', '0', manu)
+    manu = re.sub(r'[0-9０-９]+', '0', manu)
     manu = re.sub(
         r'[!"#$%&()\*\+\-\.,\/:;<=>?@\[\\\]^_`{|}]+', '、', manu)
     manu = re.sub(r'[“（）【】『』｛｝「」［］《》〈〉]', '、', manu)
@@ -170,21 +169,21 @@ def tokenize(manuscript: str) -> list:
         print(manuscript)
         return None
     for tok in tokens:
-        _ps = tok.part_of_speech.split(',')[0]
-        if _ps not in ['名詞', '動詞', '形容詞']:
+        ps = tok.part_of_speech.split(',')[0]
+        if ps not in ['名詞', '動詞', '形容詞']:
             continue
         # 原形があれば原形をリストに入れる
-        _w = tok.base_form
-        if _w == '*' or _w == '':
+        w = tok.base_form
+        if w == '*' or w == '':
             # 原形がなければ表層系(原稿の単語そのまま)をリストに入れる
-            _w = tok.surface
-        if _w == '' or _w == '\n':
+            w = tok.surface
+        if w == '' or w == '\n':
             continue
         # 全角英数はすべて半角英数にする
-        _w = mojimoji.zen_to_han(_w, kana=False, digit=False)
+        w = mojimoji.zen_to_han(w, kana=False, digit=False)
         # 半角カタカナはすべて全角にする
-        _w = mojimoji.han_to_zen(_w, digit=False, ascii=False)
+        w = mojimoji.han_to_zen(w, digit=False, ascii=False)
         # 英語はすべて小文字にする
-        _w = _w.lower()
-        append(_w)
+        w = w.lower()
+        append(w)
     return token_list
