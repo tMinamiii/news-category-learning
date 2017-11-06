@@ -94,8 +94,7 @@ class PCATfidfVectorizer:
 
     def fit(self, tokenized_news: list, batch_size: int) -> None:
         '''
-         batch_sizeで指定した数値ずつtokenized_newsを
-         主成分分析にかけていく
+          ニュース原稿のtfidfの主成分をbatch_sizeで指定した分ずつ求めていく
         '''
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
@@ -106,25 +105,25 @@ class PCATfidfVectorizer:
 
     def vectorize(self, tokenized_news: list) -> np.array:
         '''
-         tokenized_newsのTF-IDFベクトルを求めたのち主成分分析で次元削減する
+         ニュース原稿のTF-IDFベクトルを求めたのち主成分分析で次元削減する
         '''
         data = []
         for news in tokenized_news:
             category = news[0]
             category_vec = self.prep.category_dic[category]
             tc = news[1]
-            tfidf = np.array(self.tfidf(tc)).reshape(1, -1)
+            tfidf = self.tfidf(tc).reshape(1, -1)
             # transformの結果は2重リストになっているので、最初の要素を取り出す
             dimred_tfidf = self.ipca.transform(tfidf)[0]
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
-    def tfidf(self, token_counter: Counter) -> list:
+    def tfidf(self, token_counter: Counter) -> np.array:
         '''
         TF-IDFベクトルを求める。
         '''
         prep = self.prep
-        tf_vec = [0.0] * self.max_dim
+        tf_vec = np.zeros(self.max_dim)
         total_tokens = sum(token_counter.values())
         for token, count in token_counter.items():
             uid = prep.token_to_id[token]

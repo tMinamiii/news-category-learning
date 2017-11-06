@@ -1,6 +1,6 @@
 NUM_UNITS = 2000
-DATA_FILE = 'ldata/2017-11-05.td'
-PREPROCESSED_FILE = 'ldata/2017-11-05.prep'
+DATA_FILE = 'ldata/2017-11-06.td'
+PREPROCESSED_FILE = 'ldata/2017-11-06.prep'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 2000
 TOTAL_STEP = 1000000
@@ -15,7 +15,7 @@ PCA_DIMENSION = 300
 CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
               '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
 
-CATEGORIES = ['映画', '経済総合', '野球',
-              '社会', 'ライフ総合', 'エンタメ総合', 'サッカー', 'スポーツ総合']
+# CATEGORIES = ['映画', '経済総合', '野球',
+#              '社会', 'ライフ総合', 'エンタメ総合', ]
 # CATEGORIES = ['IT総合', '映画']
 PCA_BATCH_DATA_LENGTH = 600
