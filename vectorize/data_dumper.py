@@ -1,6 +1,6 @@
 import datetime
 import glob
-
+import os
 import numpy as np
 
 import constant_values as c
@@ -18,6 +18,8 @@ def find_all_csvs() -> list:
 def dump_data(prep: ld.Preprocessor, data_for_learn: np.array):
     current_time = datetime.datetime.now()
     output_name = current_time.strftime('%Y-%m-%d')
+    if not os.path.isdir('ldata'):
+        os.mkdir('ldata')
     ld.dump(prep, 'ldata/' + output_name + '.prep')
     print('Preprocessed data was dumped.')
     ld.dump(data_for_learn, 'ldata/' + output_name + '.td')
