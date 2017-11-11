@@ -98,24 +98,29 @@ class PCATfidfVectorizer:
         '''
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
+        nparray = np.array
+        tfidf = self.tfidf
+        partial_fit = self.ipca.partial_fit
         for i in range(0, news_len, batch_size):
             chunks = tokenized_news[i:i + batch_size]
-            mat = np.array([self.tfidf(c[1]) for c in chunks])
-            self.ipca.partial_fit(mat)
+            mat = nparray([tfidf(c[1]) for c in chunks])
+            partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:
         '''
          ニュース原稿のTF-IDFベクトルを求めたのち主成分分析で次元削減する
         '''
         data = []
-        for news in tokenized_news:
-            category = news[0]
-            category_vec = self.prep.category_dic[category]
-            tc = news[1]
-            tfidf = self.tfidf(tc).reshape(1, -1)
+        data_append = data.append
+        category_dic = self.prep.category_dic
+        transform = self.ipca.transform
+        tfidf = self.tfidf
+        for category, counter in tokenized_news:
+            category_vec = category_dic[category]
+            tfidf = tfidf(counter).reshape(1, -1)
             # transformの結果は2重リストになっているので、最初の要素を取り出す
-            dimred_tfidf = self.ipca.transform(tfidf)[0]
-            data.append((category_vec, dimred_tfidf))
+            dimred_tfidf = transform(tfidf)[0]
+            data_append((category_vec, dimred_tfidf))
         return np.array(data)
 
     def tfidf(self, token_counter: Counter) -> np.array:
@@ -125,9 +130,11 @@ class PCATfidfVectorizer:
         prep = self.prep
         tf_vec = np.zeros(self.max_dim)
         total_tokens = sum(token_counter.values())
+        token_to_id = prep.token_to_id
+        idf = prep.idf
         for token, count in token_counter.items():
-            uid = prep.token_to_id[token]
-            tf_vec[uid] = count / total_tokens * prep.idf[token]
+            uid = token_to_id[token]
+            tf_vec[uid] = count / total_tokens * idf[token]
 
         return tf_vec
 
