@@ -100,7 +100,7 @@ class PCATfidfVectorizer:
         random.shuffle(tokenized_news)
         for i in range(0, news_len, batch_size):
             chunks = tokenized_news[i:i + batch_size]
-            mat = np.__version__array([self.tfidf(c[1]) for c in chunks])
+            mat = np.array((self.tfidf(c[1]) for c in chunks))
             self.ipca.partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:
