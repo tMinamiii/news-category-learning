@@ -22,7 +22,7 @@ class Preprocessor:
     def __init__(self):
         self.loaded_csv_paths = []
         self.token_to_id = {}
-        self.id_to_token = {}
+        # self.id_to_token = {}
         self.categories = set()
         self.category_dic = {}
         self.token_seq_no = 0
@@ -41,18 +41,18 @@ class Preprocessor:
                 for row in reader:
                     if len(row) != 4:
                         continue
-                    if int(row[2]) < min_manuscript_len:
+                    category, _, length, manuscript = row
+                    if int(length) < min_manuscript_len:
                         continue
-                    filtered = sanitize(row[3])
-                    tokens = tokenize(filtered)
+                    sanitized = sanitize(manuscript)
+                    tokens = tokenize(sanitized)
                     if tokens is None or len(tokens) < min_token_len:
                         continue
                     # Counterで単語の出現頻度を数える
                     token_counter = Counter(tokens)
-                    self.categories.add(row[0])
+                    self.categories.add(category)
                     self.update_token_dics(token_counter)
-                    self.tokenized_news.append([row[0], token_counter])
-                    self.doc_seq_no += 1
+                    self.tokenized_news.append([category, token_counter])
         self.update_idf()
         self.update_category_dic()
 
@@ -64,13 +64,14 @@ class Preprocessor:
             category_vec[cat_list.index(cat)] = 1
             self.category_dic[cat] = category_vec
 
-    def update_token_dics(self, token_counter: dict):
+    def update_token_dics(self, token_counter: Counter):
         for tok, _ in token_counter.items():
             if tok not in self.token_to_id:
                 self.token_to_id[tok] = self.token_seq_no
-                self.id_to_token[self.token_seq_no] = tok
+                # self.id_to_token[self.token_seq_no] = tok
                 self.token_seq_no += 1
             self.token_to_docid.setdefault(tok, set()).add(self.doc_seq_no)
+        self.doc_seq_no += 1
 
     def update_idf(self) -> dict:
         self.idf = {token: self.__idf(docids)
@@ -100,7 +101,7 @@ class PCATfidfVectorizer:
         random.shuffle(tokenized_news)
         for i in range(0, news_len, batch_size):
             chunks = tokenized_news[i:i + batch_size]
-            mat = np.array((self.tfidf(c[1]) for c in chunks))
+            mat = np.array([self.tfidf(c) for _, c in chunks])
             self.ipca.partial_fit(mat)
 
     def vectorize(self, tokenized_news: list) -> np.array:

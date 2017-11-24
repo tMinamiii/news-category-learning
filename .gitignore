@@ -5,3 +5,6 @@ tests/tokenuid.dump
 ldata
 .ipynb_checkpoints
 jupyter
+GPATH
+GTAGS
+GRTAGS

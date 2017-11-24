@@ -1,6 +1,6 @@
 NUM_UNITS = 2000
-DATA_FILE = 'ldata/2017-11-11.td'
-PREPROCESSED_FILE = 'ldata/2017-11-11.prep'
+DATA_FILE = 'ldata/2017-11-12.td'
+PREPROCESSED_FILE = 'ldata/2017-11-12.prep'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 2000
 TOTAL_STEP = 1000000
