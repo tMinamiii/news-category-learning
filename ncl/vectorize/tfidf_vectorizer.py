@@ -136,7 +136,7 @@ def main():
     learning_data = pca_tfidf.vectorize(meta.tokenized_news)
     print('vectorizing finished')
 
-    dirname = './data/vector/'
+    dirname = './data/vector/tfidf/'
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
