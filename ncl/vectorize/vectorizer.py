@@ -6,7 +6,7 @@ from collections import Counter
 
 import numpy as np
 from sklearn.decomposition import IncrementalPCA
-from news_tokenizer import YahooNewsTokenizer
+from vectorize.news_tokenizer import YahooNewsTokenizer
 
 
 class Preprocessor:

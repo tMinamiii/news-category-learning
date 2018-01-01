@@ -1,8 +1,8 @@
 import numpy as np
 
-import constant_values as c
-import double_layer_nn as dlnn
-import vectorize.vectorizer as ld
+from . import constant_values as c
+from learnign import double_layer_nn as dlnn
+from vectorize import vectorizer as ld
 
 
 def main():

@@ -4,7 +4,7 @@ import glob
 import json
 import os
 
-import scraping.yahoonews as yahoonews
+from scraping import yahoonews as yahoonews
 from vectorize.news_tokenizer import YahooNewsTokenizer
 
 
@@ -46,7 +46,7 @@ def fetch_news(rss_dic, time, filetype='json'):
     chunk_dic = scrape(rss_dic, time)
     for k, v in chunk_dic.items():
         timestr = time.strftime('%Y-%m-%d')
-        targetdir = '{0}/{1}'.format(filetype, timestr)
+        targetdir = './data/json/{}'.format(timestr)
         if not os.path.isdir(targetdir):
             os.makedirs(targetdir)
 
@@ -56,16 +56,16 @@ def fetch_news(rss_dic, time, filetype='json'):
 
 def fetch_wakati(time, filetype='json'):
     timestr = time.strftime('%Y-%m-%d')
-    dirname = 'wakati/{}'.format(timestr)
+    dirname = './data/wakati/{}'.format(timestr)
     if not os.path.isdir(dirname):
         os.makedirs(dirname)
-    paths = glob.glob('json/{0}/*.json'.format(timestr))
+    paths = glob.glob('./data/{0}/{1}/*'.format(filetype, timestr))
 
     for path in paths:
         basename = os.path.basename(path)
         category = os.path.splitext(basename)[0]
         wakati = make_wakati(path)
-        filename = 'wakati/{0}/{1}.wakati'.format(timestr, category)
+        filename = './data/wakati/{0}/{1}.wakati'.format(timestr, category)
         write_wakati_file(filename, wakati)
 
 
@@ -91,7 +91,7 @@ def write_wakati_file(filename, wakati):
         f.write(wakati)
 
 
-if __name__ == '__main__':
+def main(filetype):
     rss = yahoonews.YahooRSSScraper()
 
     jp = rss.scrape_jp_newslist()
@@ -103,12 +103,13 @@ if __name__ == '__main__':
     entertaiment = rss.scrape_entertaiment_newslist()
 
     time = datetime.datetime.now()
-    fetch_news(jp, time, filetype='json')
-    fetch_news(world, time, filetype='json')
-    fetch_news(economic, time, filetype='json')
-    fetch_news(sports, time, filetype='json')
-    fetch_news(it_science, time, filetype='json')
-    fetch_news(life, time, filetype='json')
-    fetch_news(entertaiment, time, filetype='json')
 
-    fetch_wakati(time, filetype='json')
+    fetch_news(jp, time, filetype)
+    fetch_news(world, time, filetype)
+    fetch_news(economic, time, filetype)
+    fetch_news(sports, time, filetype)
+    fetch_news(it_science, time, filetype)
+    fetch_news(life, time, filetype)
+    fetch_news(entertaiment, time, filetype)
+
+    fetch_wakati(time, filetype)

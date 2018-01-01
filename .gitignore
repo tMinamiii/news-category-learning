@@ -1,8 +1,6 @@
 .vscode
 **/__pycache__/
-csv
 tests/tokenuid.dump
-ldata
 .ipynb_checkpoints
 jupyter
 env
@@ -10,5 +8,4 @@ GPATH
 GTAGS
 GRTAGS
 gtags.conf
-json
-wakati
+ncl/data

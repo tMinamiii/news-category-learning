@@ -3,8 +3,8 @@ import glob
 import os
 import numpy as np
 
-import constant_values as c
-import vectorize.vectorizer as ld
+from . import constant_values as c
+from vecotrize import vectorizer as ld
 
 
 def find_all_csvs() -> list:
