@@ -8,15 +8,8 @@ from bs4 import BeautifulSoup
 from bs4.element import Tag
 
 
-class NewsChunk:
-    def __init__(self, category, title, manuscript):
-        self.category = category
-        self.title = title
-        self.manuscript = manuscript
-
-
 class YahooNewsScraper:
-    def read_manuscript(self, news_url) -> str:
+    def read_manuscript(self, news_url, oneline=False) -> str:
         # readしてHTMLデータをすべてDLしてしまう
         resp = req.urlopen(news_url)
         code = resp.getcode()
@@ -38,10 +31,11 @@ class YahooNewsScraper:
                     if type(con) == Tag:
                         continue
                     manuscript += con.string.strip(' 　')
-            except:
+            except Exception:
                 print('Error occoured while scraping : ' + news_url)
-        manuscript = manuscript.replace('\r', '')
-        manuscript = manuscript.replace('\n', '')
+        if oneline:
+            manuscript = manuscript.replace('\r', '')
+            manuscript = manuscript.replace('\n', '')
         return manuscript
 
     def is_old_news(self, pubdate_str: str, specified_date: datetime) -> bool:
@@ -53,7 +47,7 @@ class YahooNewsScraper:
         # 指定した日付よりも前のニュースは古いのでTrue
         return pubdate.date() < specified_date.date()
 
-    def scrape_news(self, rss_url, sleep=1, date=None) -> dict:
+    def scrape_news(self, rss_url, sleep=1, date=None, oneline=False) -> dict:
         xml = req.urlopen(rss_url).read()
         items = ET.fromstring(xml).iter('item')
         news_dic = {}
@@ -66,8 +60,13 @@ class YahooNewsScraper:
             link = item.find('link').text
             category = item.find('category').text
             try:
-                manuscript = self.read_manuscript(link)
-                chunk = NewsChunk(category, title, manuscript)
+                manuscript = self.read_manuscript(link, oneline)
+                chunk = {'category': category,
+                         'title': title,
+                         'manuscript_len': len(manuscript),
+                         'manuscript': manuscript}
+                # カテゴリごとに保存ディレクトリを分けるので
+                # categoryをkeyにして辞書で返す
                 news_dic.setdefault(category, []).append(chunk)
             except urllib.error.HTTPError as http_error:
                 print(http_error.msg)
