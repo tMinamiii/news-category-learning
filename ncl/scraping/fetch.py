@@ -4,29 +4,21 @@ import glob
 import json
 import os
 
+import utils as u
 from scraping import yahoonews as yahoonews
 from vectorize.news_tokenizer import YahooNewsTokenizer
 
 
-def write_news_file(filename, chunks, filetype):
-    if filetype == 'json':
-        if not os.path.isfile(filename):
-            with open(filename, 'w', encoding='utf-8') as f:
-                json.dump([], f)
+def fetch_news(rss_dic, time, filetype='json'):
+    chunk_dic = scrape(rss_dic, time)
+    for k, v in chunk_dic.items():
+        timestr = time.strftime('%Y-%m-%d')
+        targetdir = './data/json/{}'.format(timestr)
+        if not os.path.isdir(targetdir):
+            os.makedirs(targetdir)
 
-        with open(filename, 'r', encoding='utf-8') as f:
-            feeds = json.load(f)
-
-        with open(filename, 'w', encoding='utf-8') as f:
-            feeds.extend(chunks)
-            json.dump(feeds, f, ensure_ascii=False)
-
-    elif filetype == 'csv':
-        with open(filename, 'a', newline='') as f:
-            writer = csv.writer(f,  lineterminator='\n')
-            for chunk in chunks:
-                writer.writerow([chunk['category'], chunk['title'],
-                                 chunk['manuscript_len'], chunk['manuscript']])
+        filename = '{0}/{1}.{2}'.format(targetdir, k, filetype)
+        write_news_file(filename, v, filetype)
 
 
 def scrape(rss_dic, time, oneline=False) -> list:
@@ -42,16 +34,26 @@ def scrape(rss_dic, time, oneline=False) -> list:
     return chunk_dic
 
 
-def fetch_news(rss_dic, time, filetype='json'):
-    chunk_dic = scrape(rss_dic, time)
-    for k, v in chunk_dic.items():
-        timestr = time.strftime('%Y-%m-%d')
-        targetdir = './data/json/{}'.format(timestr)
-        if not os.path.isdir(targetdir):
-            os.makedirs(targetdir)
+def write_news_file(filename, chunks, filetype):
+    if filetype == 'json':
+        if not os.path.isfile(filename):
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump([], f)
 
-        filename = '{0}/{1}.{2}'.format(targetdir, k, filetype)
-        write_news_file(filename, v, filetype)
+        # あまり賢いやり方ではないが、せいぜい数回なのでこのやり方で我慢
+        with open(filename, 'r', encoding='utf-8') as f:
+            feeds = json.load(f)
+
+        with open(filename, 'w', encoding='utf-8') as f:
+            feeds.extend(chunks)
+            json.dump(feeds, f, ensure_ascii=False)
+
+    elif filetype == 'csv':
+        with open(filename, 'a', newline='') as f:
+            writer = csv.writer(f,  lineterminator='\n')
+            for chunk in chunks:
+                writer.writerow([chunk['category'], chunk['title'],
+                                 chunk['manuscript_len'], chunk['manuscript']])
 
 
 def fetch_wakati(time, filetype='json'):
@@ -62,11 +64,30 @@ def fetch_wakati(time, filetype='json'):
     paths = glob.glob('./data/{0}/{1}/*'.format(filetype, timestr))
 
     for path in paths:
-        basename = os.path.basename(path)
-        category = os.path.splitext(basename)[0]
+        category = u.extract_category(path)
         wakati = make_wakati(path)
         filename = './data/wakati/{0}/{1}.wakati'.format(timestr, category)
         write_wakati_file(filename, wakati)
+
+        append_path = './data/wakati/{}.wakati'.format(category)
+        with open(append_path, 'a') as f:
+            f.write(wakati)
+
+
+def integrate_wakati_files():
+    # initialize
+    rm_paths = glob.glob('./data/wakati/*.wakati')
+    for path in rm_paths:
+        os.remove(path)
+    read_paths = glob.glob('./data/wakati/*/*.wakati')
+    for path in read_paths:
+        category = u.extract_category(path)
+        with open(path, 'r') as f:
+            wakati = f.read()
+        write_path = './data/wakati/{}.wakati'.format(category)
+
+        with open(write_path, 'a') as f:
+            f.write(wakati)
 
 
 def make_wakati(path):
@@ -81,6 +102,8 @@ def make_wakati(path):
             for line in lines:
                 sanitized = tk.sanitize(line)
                 tokens = tk.tokenize(sanitized)
+                if len(tokens) == 0:
+                    continue
                 line_wakati = ' '.join(tokens)
                 category_result.append(line_wakati)
     return '\n'.join(category_result)

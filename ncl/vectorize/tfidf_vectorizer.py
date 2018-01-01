@@ -1,15 +1,17 @@
-import csv
+import glob
 import math
+import os
 import pickle
 import random
 from collections import Counter
 
 import numpy as np
 from sklearn.decomposition import IncrementalPCA
-from vectorize.news_tokenizer import YahooNewsTokenizer
+
+import utils as u
 
 
-class Preprocessor:
+class Metadata:
     '''
     ニュースのCSVを読み込んで、学習用データの前処理を施していく。
     ニュース原稿を形態素解析にかけ、Counterを用いて出現頻度を数えておく。
@@ -28,25 +30,16 @@ class Preprocessor:
         self.tokenized_news = []
         self.idf = {}
 
-    def append(self, csv_paths: list,
+    def append(self, wakati_paths: list,
                min_manuscript_len: int,
                min_token_len: int):
-        for path in csv_paths:
+        for path in wakati_paths:
             with open(path, 'r') as f:
-                reader = csv.reader(f)
-                self.loaded_csv_paths.append(path)
-                for row in reader:
-                    if len(row) != 4:
-                        continue
-                    category, _, length, manuscript = row
-                    if int(length) < min_manuscript_len:
-                        continue
-                    tokenizer = YahooNewsTokenizer()
-                    sanitized = tokenizer.sanitize(manuscript)
-                    tokens = tokenizer.tokenize(sanitized)
-                    if tokens is None or len(tokens) < min_token_len:
-                        continue
-                    # Counterで単語の出現頻度を数える
+                # Counterで単語の出現頻度を数える
+                category = u.extract_category(path)
+                wakati_lines = f.readlines()
+                for wakati in wakati_lines:
+                    tokens = wakati.split(' ')
                     token_counter = Counter(tokens)
                     self.categories.add(category)
                     self.update_token_dics(token_counter)
@@ -79,62 +72,82 @@ class Preprocessor:
         return math.log(self.doc_seq_no / len(docids)) + 1
 
 
-class PCATfidfVectorizer:
+def tfidf(meta: Metadata, token_counter: Counter):
     '''
-    TF-IDFベクトルを作成し主成分分析(IncrementalPCA)を適用するクラス
+    TF-IDFベクトルを作成
     '''
 
-    def __init__(self, prep: Preprocessor, dimension: int):
-        self.prep = prep
-        self.cat_list = list(self.prep.categories)
-        self.cat_len = len(self.prep.categories)
-        self.max_dim = self.prep.token_seq_no
-        self.ipca = IncrementalPCA(n_components=dimension)
+    max_dim = meta.token_seq_no
+    tf_vec = np.zeros(max_dim)
+    total_tokens = sum(token_counter.values())
+    for token, count in token_counter.items():
+        uid = meta.token_to_id[token]
+        tf_vec[uid] = count / total_tokens * meta.idf[token]
 
-    def fit(self, tokenized_news: list, batch_size: int) -> None:
+    return tf_vec
+
+
+class PcaTfidfVectorizer:
+    def __init__(self, meta: Metadata):
+        self.meta = meta
+
+    def incremental_fit(self, tokenized_news):
+        ipca = IncrementalPCA(n_components=u.PCA_DIMENSION)
+
         '''
           ニュース原稿のtfidfの主成分をbatch_sizeで指定した分ずつ求めていく
         '''
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
-        for i in range(0, news_len, batch_size):
-            chunks = tokenized_news[i:i + batch_size]
-            mat = np.array([self.tfidf(c) for _, c in chunks])
-            self.ipca.partial_fit(mat)
+        batch = u.PCA_BATCH_DATA_LENGTH
+        for i in range(0, news_len, batch):
+            chunks = tokenized_news[i:i + batch]
+            mat = np.array([tfidf(self.meta, c) for _, c in chunks])
+            ipca.partial_fit(mat)
+        return ipca
 
     def vectorize(self, tokenized_news: list) -> np.array:
         '''
          ニュース原稿のTF-IDFベクトルを求めたのち主成分分析で次元削減する
         '''
+        ipca = self.incremental_fit(tokenized_news)
         data = []
         for category, counter in tokenized_news:
-            category_vec = self.prep.category_dic[category]
-            vec = self.tfidf(counter).reshape(1, -1)
+            category_vec = self.meta.category_dic[category]
+            vec = tfidf(self.meta, counter).reshape(1, -1)
             # transformの結果は2重リストになっているので、最初の要素を取り出す
-            dimred_tfidf = self.ipca.transform(vec)[0]
+            dimred_tfidf = ipca.transform(vec)[0]
             data.append((category_vec, dimred_tfidf))
         return np.array(data)
 
-    def tfidf(self, token_counter: Counter) -> np.array:
-        '''
-        TF-IDFベクトルを求める。
-        '''
-        tf_vec = np.zeros(self.max_dim)
-        total_tokens = sum(token_counter.values())
-        for token, count in token_counter.items():
-            uid = self.prep.token_to_id[token]
-            tf_vec[uid] = count / total_tokens * self.prep.idf[token]
 
-        return tf_vec
+def main():
+    all_paths = glob.glob('./data/wakati/*.wakati')
+    paths = [p for p in all_paths
+             if u.extract_category(p) in u.CATEGORIES]
+    meta = Metadata()
+    meta.append(paths, min_manuscript_len=u.MINIMUM_MANUSCRIPT_LENGTH,
+                min_token_len=u.MINIMUM_TOKEN_LENGTH)
+    print('TFIDF calculated')
+
+    pca_tfidf = PcaTfidfVectorizer(meta)
+    print('IncrementPCA fitting finished')
+
+    learning_data = pca_tfidf.vectorize(meta.tokenized_news)
+    print('vectorizing finished')
+
+    dirname = './data/vector/'
+    if not os.path.isdir(dirname):
+        os.mkdir(dirname)
+
+    pickle_dump(meta, dirname + 'tfidf.meta')
+    print('Meta data was dumped.')
+
+    pickle_dump(learning_data, dirname + 'tfidf.data')
+    print('Learning data was dumped.')
 
 
-def dump(dumpdata, filepath: str) -> None:
+def pickle_dump(dumpdata, filepath: str) -> None:
     with open(filepath, mode='wb') as f:
         pickle.dump(dumpdata, f)
         f.flush()
-
-
-def load(filepath: str):
-    with open(filepath, mode='rb') as f:
-        return pickle.load(f)
-

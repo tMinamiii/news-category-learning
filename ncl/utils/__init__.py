@@ -1,6 +1,8 @@
+import os
+
 NUM_UNITS = 2000
-DATA_FILE = 'ldata/2017-11-12.td'
-PREPROCESSED_FILE = 'ldata/2017-11-12.prep'
+DATA_FILE = 'tfidf.data'
+METADATA_FILE = 'tfidf.meta'
 LOG_FILE = '/tmp/yn_categories_logs'
 BATCH_SIZE = 2000
 TOTAL_STEP = 1000000
@@ -19,3 +21,9 @@ CATEGORIES = ['IT総合', '映画', '経済総合', '野球',
 #              '社会', 'ライフ総合', 'エンタメ総合', ]
 # CATEGORIES = ['IT総合', '映画']
 PCA_BATCH_DATA_LENGTH = 600
+
+
+def extract_category(path):
+    basename = os.path.basename(path)
+    category, _ = os.path.splitext(basename)
+    return category
