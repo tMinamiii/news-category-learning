@@ -24,10 +24,10 @@ def main(filetype):
 
     data = sentences(filetype)
     model = doc2vec.Doc2Vec(data, dm=0, alpha=0.025, min_alpha=0.025,
-                            size=200, window=15,
+                            size=200, window=10,
                             sample=1e-6, min_count=1)
     length = sum([len(s) for s in sentences()])
-    for epoch in range(50):
+    for epoch in range(10):
         model.train(data, total_examples=length, epochs=model.iter)
         model.alpha -= 0.002
         model.min_alpha = model.alpha
