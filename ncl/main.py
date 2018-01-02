@@ -7,7 +7,6 @@ from vectorize import tfidf_vectorizer, w2v_vectorizer
 if __name__ == '__main__':
     command = sys.argv
     length = len(command)
-    print(length)
     if length == 1:
         sys.exit()
     if command[1] == 'scraping':
@@ -18,7 +17,7 @@ if __name__ == '__main__':
         fetch.main(filetype)
 
     elif command[1] == 'integrate_wakati':
-        print('integrate wakati files')
+        print('integrating wakati files')
         fetch.integrate_wakati_files()
 
     elif command[1] == 'vectorize':
@@ -30,8 +29,10 @@ if __name__ == '__main__':
             filetype = command[3]
 
         if vector_type == 'word2vec':
+            print('creating doc2vec models')
             w2v_vectorizer.main()
         elif vector_type == 'tfidf':
+            print('creating tfidf vectors')
             tfidf_vectorizer.main(filetype)
     elif command[1] == 'learning':
         learning_type = 'deep'

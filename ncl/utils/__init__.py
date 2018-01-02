@@ -2,11 +2,11 @@ import os
 import pickle
 
 
-NUM_UNITS = 1000
+NUM_UNITS = 2000
 DATA_FILE = './data/vector/tfidf/tfidf.data'
 METADATA_FILE = './data/vector/tfidf/tfidf.meta'
 LOG_FILE = '/tmp/yn_categories_logs'
-BATCH_SIZE = 500
+BATCH_SIZE = 200
 TOTAL_STEP = 1000000
 LEARNING_RATE = 0.0001  # 学習率
 TRAINING_DATA_RATIO = 0.8  # 全データのうち訓練用に使う割合
