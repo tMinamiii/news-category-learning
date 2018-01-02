@@ -15,10 +15,7 @@ if __name__ == '__main__':
             filetype = command[2]
         print('scraping ...')
         fetch.main(filetype)
-
-    elif command[1] == 'integrate_wakati':
-        print('integrating wakati files')
-        fetch.integrate_wakati_files()
+        print('scraping finished')
 
     elif command[1] == 'vectorize':
         vector_type = 'word2vec'
@@ -30,10 +27,11 @@ if __name__ == '__main__':
 
         if vector_type == 'word2vec':
             print('creating doc2vec models')
-            w2v_vectorizer.main()
+            w2v_vectorizer.main(filetype)
         elif vector_type == 'tfidf':
             print('creating tfidf vectors')
             tfidf_vectorizer.main(filetype)
+        print('vectoring finished')
     elif command[1] == 'learning':
         learning_type = 'deep'
         if length == 3:

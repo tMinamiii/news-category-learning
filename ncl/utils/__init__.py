@@ -1,5 +1,8 @@
 import os
 import pickle
+import json
+import csv
+import glob
 
 
 NUM_UNITS = 2000
@@ -41,3 +44,25 @@ def extract_category(path):
     basename = os.path.basename(path)
     category, _ = os.path.splitext(basename)
     return category
+
+
+def find_and_load_news(filetype):
+    all_paths = []
+    for cat in CATEGORIES:
+        regex = './data/{0}/{1}/*.{0}'.format(filetype, cat)
+        all_paths += glob.glob(regex)
+    all_chunks = []
+    for path in all_paths:
+        with open(path, 'r') as f:
+            if filetype == 'json':
+                chunk = json.load(f)
+            elif filetype == 'csv':
+                chunk = []
+                for line in csv.reader(f):
+                    line_dic = {'category': line[0],
+                                'title': line[1],
+                                'manuscript_len': line[2],
+                                'manuscript': line[3]}
+                    chunk.append(line_dic)
+        all_chunks += chunk
+    return all_chunks

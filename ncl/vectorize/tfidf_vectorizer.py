@@ -127,29 +127,9 @@ class PcaTfidfVectorizer:
         return np.array(data)
 
 
-def find_and_load_news(filetype):
-    all_paths = glob.glob('./data/{0}/*/*.{0}'.format(filetype))
-    news_paths = [p for p in all_paths
-                  if u.extract_category(p) in u.CATEGORIES]
-    all_chunks = []
-    for path in news_paths:
-        with open(path, 'r') as f:
-            if filetype == 'json':
-                chunk = json.load(f)
-            elif filetype == 'csv':
-                chunk = []
-                for line in csv.reader(f):
-                    line_dic = {'category': line[0],
-                                'title': line[1],
-                                'manuscript_len': line[2],
-                                'manuscript': line[3]}
-                    chunk.append(line_dic)
-        all_chunks += chunk
-    return all_chunks
-
 
 def main(filetype='json'):
-    all_chunks = find_and_load_news(filetype)
+    all_chunks = u.find_and_load_news(filetype)
 
     meta = Metadata()
     meta.append(all_chunks, min_manuscript_len=u.MINIMUM_MANUSCRIPT_LENGTH,
