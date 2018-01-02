@@ -1,7 +1,8 @@
+import csv
 import glob
+import json
 import math
 import os
-import pickle
 import random
 from collections import Counter
 
@@ -9,6 +10,7 @@ import numpy as np
 from sklearn.decomposition import IncrementalPCA
 
 import utils as u
+from vectorize.news_tokenizer import YahooNewsTokenizer
 
 
 class Metadata:
@@ -30,20 +32,24 @@ class Metadata:
         self.tokenized_news = []
         self.idf = {}
 
-    def append(self, wakati_paths: list,
+    def append(self, news_chunks: list,
                min_manuscript_len: int,
                min_token_len: int):
-        for path in wakati_paths:
-            with open(path, 'r') as f:
-                # Counterで単語の出現頻度を数える
-                category = u.extract_category(path)
-                wakati_lines = f.readlines()
-                for wakati in wakati_lines:
-                    tokens = wakati.split(' ')
-                    token_counter = Counter(tokens)
-                    self.categories.add(category)
-                    self.update_token_dics(token_counter)
-                    self.tokenized_news.append([category, token_counter])
+        ynt = YahooNewsTokenizer()
+        for chunk in news_chunks:
+            category = chunk['category']
+            manuscript_len = chunk['manuscript_len']
+            manuscript = chunk['manuscript']
+            if min_manuscript_len >= manuscript_len:
+                continue
+            sanitized = ynt.sanitize(manuscript)
+            tokens = ynt.tokenize(sanitized)
+            if min_token_len >= len(tokens):
+                continue
+            token_counter = Counter(tokens)
+            self.categories.add(category)
+            self.update_token_dics(token_counter)
+            self.tokenized_news.append([category, token_counter])
         self.update_idf()
         self.update_category_dic()
 
@@ -121,12 +127,32 @@ class PcaTfidfVectorizer:
         return np.array(data)
 
 
-def main():
-    all_paths = glob.glob('./data/wakati/*.wakati')
-    paths = [p for p in all_paths
-             if u.extract_category(p) in u.CATEGORIES]
+def find_and_load_news(filetype):
+    all_paths = glob.glob('./data/{0}/*/*.{0}'.format(filetype))
+    news_paths = [p for p in all_paths
+                  if u.extract_category(p) in u.CATEGORIES]
+    all_chunks = []
+    for path in news_paths:
+        with open(path, 'r') as f:
+            if filetype == 'json':
+                chunk = json.load(f)
+            elif filetype == 'csv':
+                chunk = []
+                for line in csv.reader(f):
+                    line_dic = {'category': line[0],
+                                'title': line[1],
+                                'manuscript_len': line[2],
+                                'manuscript': line[3]}
+                    chunk.append(line_dic)
+        all_chunks += chunk
+    return all_chunks
+
+
+def main(filetype='json'):
+    all_chunks = find_and_load_news(filetype)
+
     meta = Metadata()
-    meta.append(paths, min_manuscript_len=u.MINIMUM_MANUSCRIPT_LENGTH,
+    meta.append(all_chunks, min_manuscript_len=u.MINIMUM_MANUSCRIPT_LENGTH,
                 min_token_len=u.MINIMUM_TOKEN_LENGTH)
     print('TFIDF calculated')
 
@@ -140,14 +166,8 @@ def main():
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
-    pickle_dump(meta, dirname + 'tfidf.meta')
+    u.pickle_dump(meta, dirname + 'tfidf.meta')
     print('Meta data was dumped.')
 
-    pickle_dump(learning_data, dirname + 'tfidf.data')
+    u.pickle_dump(learning_data, dirname + 'tfidf.data')
     print('Learning data was dumped.')
-
-
-def pickle_dump(dumpdata, filepath: str) -> None:
-    with open(filepath, mode='wb') as f:
-        pickle.dump(dumpdata, f)
-        f.flush()

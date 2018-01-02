@@ -1,8 +1,8 @@
 import sys
 
+from learning import task
 from scraping import fetch
-from vectorize import tfidf_vectorizer
-from vectorize import w2v_vectorizer
+from vectorize import tfidf_vectorizer, w2v_vectorizer
 
 if __name__ == '__main__':
     command = sys.argv
@@ -23,9 +23,21 @@ if __name__ == '__main__':
 
     elif command[1] == 'vectorize':
         vector_type = 'word2vec'
+        filetype = 'json'
         if length == 3:
             vector_type = command[2]
+        elif length == 4:
+            filetype = command[3]
+
         if vector_type == 'word2vec':
             w2v_vectorizer.main()
         elif vector_type == 'tfidf':
-            tfidf_vectorizer.main()
+            tfidf_vectorizer.main(filetype)
+    elif command[1] == 'learning':
+        learning_type = 'deep'
+        if length == 3:
+            learning_type = command[2]
+        if learning_type == 'deep':
+            task.main()
+        elif learning_type == 'random_forrest':
+            pass

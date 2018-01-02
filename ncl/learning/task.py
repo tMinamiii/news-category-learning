@@ -1,18 +1,11 @@
 import numpy as np
-import pickle
-from learnign import double_layer_nn as dlnn
+from learning import double_layer_nn as dlnn
 import utils as u
 
 
-def pickle_load(filepath) -> None:
-    with open(filepath, mode='rb') as f:
-        data = pickle.load(f)
-    return data
-
-
 def main():
-    meta = pickle_load(u.METADATA_FILE)
-    label_and_data = pickle_load(u.DATA_FILE)
+    meta = u.pickle_load(u.METADATA_FILE)
+    label_and_data = u.pickle_load(u.DATA_FILE)
     np.random.shuffle(label_and_data)
     length = len(label_and_data)
     boundary = int(length * u.TRAINING_DATA_RATIO)
@@ -43,7 +36,3 @@ def main():
                            nn.keep_prob: 1.0})
             print('Step: %d, Loss: %f, Accuracy: %f' % (i, loss_val, acc_val))
             nn.writer.add_summary(summary, i)
-
-
-if __name__ == '__main__':
-    main()
