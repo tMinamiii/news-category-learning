@@ -3,7 +3,7 @@ import sys
 from learning import task
 from scraping import fetch
 from vectorize import tfidf_vectorizer, w2v_vectorizer
-
+from vectorize import news_tokenizer
 if __name__ == '__main__':
     command = sys.argv
     length = len(command)
@@ -16,13 +16,18 @@ if __name__ == '__main__':
         print('scraping ...')
         fetch.main(filetype)
         print('scraping finished')
+    elif command[1] == 'wakati':
+        print('creating wakati files')
+        filetype = command[2]
+        news_tokenizer.make_wakati(filetype)
+        print('creating finished')
 
     elif command[1] == 'vectorize':
         vector_type = 'word2vec'
         filetype = 'json'
-        if length == 3:
+        if length >= 3:
             vector_type = command[2]
-        elif length == 4:
+        if length >= 4:
             filetype = command[3]
 
         if vector_type == 'word2vec':

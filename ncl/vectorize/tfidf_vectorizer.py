@@ -1,6 +1,3 @@
-import csv
-import glob
-import json
 import math
 import os
 import random
@@ -10,7 +7,7 @@ import numpy as np
 from sklearn.decomposition import IncrementalPCA
 
 import utils as u
-from vectorize.news_tokenizer import YahooNewsTokenizer
+from vectorize import news_tokenizer
 
 
 class Metadata:
@@ -32,18 +29,9 @@ class Metadata:
         self.tokenized_news = []
         self.idf = {}
 
-    def append(self, news_chunks: list,
-               min_manuscript_len: int,
-               min_token_len: int):
-        ynt = YahooNewsTokenizer()
-        for chunk in news_chunks:
-            category = chunk['category']
-            manuscript_len = chunk['manuscript_len']
-            manuscript = chunk['manuscript']
-            if min_manuscript_len >= manuscript_len:
-                continue
-            sanitized = ynt.sanitize(manuscript)
-            tokens = ynt.tokenize(sanitized)
+    def build(self, min_token_len: int):
+        wakati_gen = news_tokenizer.read_wakati()
+        for category, tokens in wakati_gen:
             if min_token_len >= len(tokens):
                 continue
             token_counter = Counter(tokens)
@@ -117,6 +105,7 @@ class PcaTfidfVectorizer:
          ニュース原稿のTF-IDFベクトルを求めたのち主成分分析で次元削減する
         '''
         ipca = self.incremental_fit(tokenized_news)
+        print('IncrementPCA fitting finished')
         data = []
         for category, counter in tokenized_news:
             category_vec = self.meta.category_dic[category]
@@ -127,17 +116,13 @@ class PcaTfidfVectorizer:
         return np.array(data)
 
 
-
 def main(filetype='json'):
-    all_chunks = u.find_and_load_news(filetype)
 
     meta = Metadata()
-    meta.append(all_chunks, min_manuscript_len=u.MINIMUM_MANUSCRIPT_LENGTH,
-                min_token_len=u.MINIMUM_TOKEN_LENGTH)
+    meta.build(min_token_len=u.MINIMUM_TOKEN_LENGTH)
     print('TFIDF calculated')
 
     pca_tfidf = PcaTfidfVectorizer(meta)
-    print('IncrementPCA fitting finished')
 
     learning_data = pca_tfidf.vectorize(meta.tokenized_news)
     print('vectorizing finished')
