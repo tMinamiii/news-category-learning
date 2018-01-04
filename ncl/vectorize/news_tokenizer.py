@@ -38,7 +38,7 @@ class YahooNewsTokenizer:
             if len(tok) < 10:
                 continue
             ps = tok[1]
-            if ps not in ['名詞', '動詞', '形容詞', '副詞']:
+            if ps not in ['名詞', '動詞', '形容詞']:
                 continue
             # 原形があれば原形をリストに入れる
             w = tok[7]
