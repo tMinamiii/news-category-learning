@@ -10,26 +10,22 @@ if __name__ == '__main__':
     if length == 1:
         sys.exit()
     if command[1] == 'scraping':
-        filetype = 'json'
-        if length == 3:
-            filetype = command[2]
+        # csv or json
+        filetype = command[2]
         print('scraping ...')
         fetch.main(filetype)
         print('scraping finished')
     elif command[1] == 'wakati':
         print('creating wakati files')
+        # csv or json
         filetype = command[2]
         news_tokenizer.make_wakati(filetype)
         print('creating finished')
-
     elif command[1] == 'vectorize':
-        vector_type = 'word2vec'
-        filetype = 'json'
-        if length >= 3:
-            vector_type = command[2]
-        if length >= 4:
-            filetype = command[3]
-
+        # tfidf or word2vec
+        vector_type = command[2]
+        # csv or json
+        filetype = command[3]
         if vector_type == 'word2vec':
             print('creating doc2vec models')
             w2v_vectorizer.main(filetype)
@@ -38,10 +34,9 @@ if __name__ == '__main__':
             tfidf_vectorizer.main(filetype)
         print('vectoring finished')
     elif command[1] == 'learning':
-        learning_type = 'deep'
-        if length == 3:
-            learning_type = command[2]
-        if learning_type == 'deep':
+        # tfidf or word2vec
+        learning_type = command[2]
+        if learning_type == 'tfidf':
             task.main()
-        elif learning_type == 'random_forrest':
+        elif learning_type == 'word2vec':
             pass
