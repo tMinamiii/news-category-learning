@@ -1,19 +1,19 @@
 import os
-
+import random
 from gensim.models import doc2vec
 
-import utils as u
 from vectorize import news_tokenizer
 
 
 def calc_length(filetype):
-    chunks = u.find_and_load_news(filetype)
-    total = len(chunks)
-    return total
+    wakati_gen = list(news_tokenizer.read_wakati())
+    return len(wakati_gen)
 
 
 def sentences():
-    wakati_gen = news_tokenizer.read_wakati()
+    # wakati_gen = news_tokenizer.read_wakati()
+    wakati_gen = list(news_tokenizer.read_wakati())
+    random.shuffle(wakati_gen)
     for category, tokens in wakati_gen:
         yield doc2vec.LabeledSentence(tokens,
                                       tags=[category])
@@ -25,18 +25,23 @@ def main(filetype):
         os.mkdir(dirname)
 
     print('Calculating length')
-    length = calc_length(filetype)
-
+    import logging
+    logging.basicConfig(
+        format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     print('Building wakati')
     data = sentences()
     print('Building model')
-    model = doc2vec.Doc2Vec(data, dm=0, alpha=0.025, min_alpha=0.025,
-                            size=200, window=15,
-                            sample=1e-6, min_count=1)
-
+    model = doc2vec.Doc2Vec(data, size=100,
+                            alpha=0.0025,
+                            min_alpha=0.000001,
+                            window=15, min_count=1)
+    word = 'microsoft'
+    print(model.wv.most_similar(word))
     print('Training model epoch')
-    for epoch in range(5000):
-        model.train(data, total_examples=length, epochs=model.iter)
-        model.alpha -= 0.002
-        model.min_alpha = model.alpha
+    training = 10
+    for epoch in range(training):
+        data = sentences()
+        model.train(data, total_examples=model.corpus_count, epochs=model.iter)
+        if epoch % 1 == 0:
+            print(model.wv.most_similar(word))
     model.save('./data/vector/d2v/category.model')

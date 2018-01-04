@@ -11,9 +11,9 @@ enum34==1.1.6
 gensim==3.2.0
 html5lib==1.0.1
 idna==2.6
-Janome==0.3.6
 jmespath==0.9.3
 Markdown==2.6.10
+mecab-python3==0.7
 mojimoji==0.0.6
 numpy==1.13.3
 protobuf==3.5.1
