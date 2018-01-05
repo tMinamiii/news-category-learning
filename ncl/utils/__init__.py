@@ -46,10 +46,14 @@ def extract_category(path):
     return category
 
 
-def find_and_load_news(filetype):
+def find_and_load_news(filetype, time=None):
     all_paths = []
     for cat in CATEGORIES:
-        regex = './data/{0}/{1}/*.{0}'.format(filetype, cat)
+        if time is not None:
+            timestr = time.strftime('%Y-%m-%d')
+            regex = './data/{0}/{1}/*_{2}.{0}'.format(filetype, cat, timestr)
+        else:
+            regex = './data/{0}/{1}/*.{0}'.format(filetype, cat)
         all_paths += glob.glob(regex)
     all_chunks = []
     for path in all_paths:

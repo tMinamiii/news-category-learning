@@ -57,10 +57,10 @@ class YahooNewsTokenizer:
         return token_list
 
 
-def make_wakati(filetype, clean=True):
-    chunks = u.find_and_load_news(filetype)
+def make_wakati(filetype, clean=True, time=None):
+    chunks = u.find_and_load_news(filetype, time)
     dirname = './data/wakati'
-    if clean and os.path.isdir(dirname):
+    if time is None and clean and os.path.isdir(dirname):
         shutil.rmtree(dirname)
     if not os.path.isdir(dirname):
         os.makedirs(dirname)

@@ -33,7 +33,7 @@ def accuracy(model, wakati_list):
         infer_vector = model.infer_vector(known_tokens)
         sim_doc = model.docvecs.most_similar([infer_vector])
         if category != sim_doc[0][0] and category != sim_doc[1][0]:
-                failed_count += 1
+            failed_count += 1
     return 1 - failed_count / len(wakati_list)
 
 
@@ -56,13 +56,18 @@ def main(filetype):
                             size=200,
                             alpha=0.0002,
                             min_alpha=0.000001,
-                            window=20)
+                            window=15,
+                            workers=8)
     print('Training model epoch')
     training = 30
+    test_words = ['iphone', 'サッカー', 'apple', '憲法', '技術']
     for epoch in range(training):
         data = sentences(train)
         model.train(data, total_examples=model.corpus_count, epochs=model.iter)
-        print('epoch {} ======================'.format(epoch))
-        print(model.wv.most_similar('iphone', topn=3))
-        print('accuracy rate: {}\n'.format(accuracy(model, test)))
+        if epoch == 0 or (epoch + 1) % 5 == 0:
+            print('epoch {} ======================'.format(epoch))
+            for w in test_words:
+                print('\t{0}\t=> {1}'.format(
+                    w, model.wv.most_similar(w, topn=3)))
+            print('accuracy rate: {}\n'.format(accuracy(model, test)))
     model.save('./data/vector/d2v/category.model')

@@ -1,9 +1,10 @@
+import datetime
 import sys
 
 from learning import task
 from scraping import fetch
-from vectorize import tfidf_vectorizer, w2v_vectorizer
-from vectorize import news_tokenizer
+from vectorize import news_tokenizer, tfidf_vectorizer, w2v_vectorizer
+
 if __name__ == '__main__':
     command = sys.argv
     length = len(command)
@@ -19,7 +20,14 @@ if __name__ == '__main__':
         print('creating wakati files')
         # csv or json
         filetype = command[2]
-        news_tokenizer.make_wakati(filetype)
+        time = command[3]
+        now = None
+        if time == 'now':
+            now = datetime.datetime.now()
+        else:
+            now = None
+
+        news_tokenizer.make_wakati(filetype, now)
         print('creating finished')
     elif command[1] == 'vectorize':
         # tfidf or word2vec
