@@ -3,12 +3,7 @@ import random
 from gensim.models import doc2vec
 
 from vectorize import news_tokenizer
-import utils as u
-
-
-def calc_length(filetype):
-    wakati_gen = list(news_tokenizer.read_wakati())
-    return len(wakati_gen)
+import util
 
 
 def sentences(wakati_list):
@@ -17,16 +12,18 @@ def sentences(wakati_list):
                                       tags=[category])
 
 
-def divid_data():
+def divide_data(divide_ratio):
     wakati_list = list(news_tokenizer.read_wakati())
     random.shuffle(wakati_list)
-    train_length = int(len(wakati_list) * u.TRAINING_DATA_RATIO)
+    train_length = int(len(wakati_list) * divide_ratio)
     print(train_length)
     return (wakati_list[0:train_length], wakati_list[train_length + 1:])
 
 
 def accuracy(model, wakati_list):
     failed_count = 0
+    if len(wakati_list) == 0:
+        return 0
     for category, tokens in wakati_list:
         known_tokens = tokens
         # infer_vectorならボキャブラリー外の単語があってもエラーにはならない
@@ -37,19 +34,13 @@ def accuracy(model, wakati_list):
     return 1 - failed_count / len(wakati_list)
 
 
-def main(filetype):
-    dirname = './data/vector/d2v'
-    if not os.path.isdir(dirname):
-        os.mkdir(dirname)
-
-    print('Calculating length')
+def validate(training_ratio):
     '''
     import logging
     logging.basicConfig(
         format='%(asctime)s : %(levelname)s : %(message)s', level=logging.INFO)
     '''
-    print('Building wakati')
-    train, test = divid_data()
+    train, test = divide_data(training_ratio)
     data = sentences(train)
     print('Building model')
     model = doc2vec.Doc2Vec(data,
@@ -58,6 +49,7 @@ def main(filetype):
                             min_alpha=0.000001,
                             window=15,
                             workers=8)
+
     print('Training model epoch')
     training = 30
     test_words = ['iphone', 'サッカー', 'apple', '憲法', '技術']
@@ -70,4 +62,15 @@ def main(filetype):
                 print('\t{0}\t=> {1}'.format(
                     w, model.wv.most_similar(w, topn=3)))
             print('accuracy rate: {}\n'.format(accuracy(model, test)))
-    model.save('./data/vector/d2v/category.model')
+    return model
+
+
+def main(validation=False):
+    if validation:
+        validate(util.TRAINING_DATA_RATIO)
+    else:
+        model = validate(1)
+        dirname = './data/vector/d2v'
+        if not os.path.isdir(dirname):
+            os.mkdir(dirname)
+        model.save('{}/category.model'.format(dirname))

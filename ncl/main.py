@@ -16,30 +16,31 @@ if __name__ == '__main__':
         print('scraping ...')
         fetch.main(filetype)
         print('scraping finished')
-    elif command[1] == 'wakati':
+    elif command[2] == 'wakati':
         print('creating wakati files')
         # csv or json
-        filetype = command[2]
+        filetype = command[3]
         time = command[3]
         now = None
         if time == 'now':
             now = datetime.datetime.now()
-        else:
-            now = None
-
-        news_tokenizer.make_wakati(filetype, now)
+            news_tokenizer.make_wakati(filetype, time=now)
+        elif time == 'all':
+            news_tokenizer.make_wakati(filetype, clean=True, time=now)
         print('creating finished')
     elif command[1] == 'vectorize':
         # tfidf or word2vec
         vector_type = command[2]
-        # csv or json
-        filetype = command[3]
         if vector_type == 'word2vec':
             print('creating doc2vec models')
-            w2v_vectorizer.main(filetype)
+            validation = command[3]
+            if validation == 'validation':
+                w2v_vectorizer.main(validation=True)
+            elif validation == 'make_model':
+                w2v_vectorizer.main(validation=False)
         elif vector_type == 'tfidf':
             print('creating tfidf vectors')
-            tfidf_vectorizer.main(filetype)
+            tfidf_vectorizer.main()
         print('vectoring finished')
     elif command[1] == 'learning':
         # tfidf or word2vec

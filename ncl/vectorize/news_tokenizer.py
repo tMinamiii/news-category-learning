@@ -6,22 +6,28 @@ import shutil
 import MeCab
 
 import mojimoji
-import utils as u
+import util
 
 
 class YahooNewsTokenizer:
     def __init__(self):
         self._m = MeCab.Tagger(' -d  /usr/lib/mecab/dic/mecab-ipadic-neologd')
+        # compileしておく
+        self.eng_sentences = re.compile(r'[a-zA-Z0-9]+[ ,\.\'\:\;\-\+?\!]')
+        self.numbers = re.compile(r'[0-9０-９]+')
+        self.symbols1 = re.compile(r'[\!\?\#\$\%\&\'\*\+\-\.\^_\`\|\~\:]+')
+        self.symbols2 = re.compile(r'[\<\=\>\;\{\}\[\]\`\@\(\)\,\\]+')
+        self.cjk_symbols = re.compile(r'[“└┐（）【】『』｛｝「」［］《》〈〉！？＝]+')
 
     def sanitize(self, manu: str) -> str:
         # 英文を取り除く（日本語の中の英字はそのまま）
-        manu = re.sub(r'[a-zA-Z0-9]+[ ,\.\'\:\;\-\+?\!]', '', manu)
+        manu = re.sub(self.eng_sentences, '', manu)
         # 記号や数字は「 」に変換する。
         # (単純に消してしまうと意味不明な長文になりjanomeがエラーを起こす)
-        manu = re.sub(r'[0-9０-９]+', '0', manu)
-        manu = re.sub(r'[\!\?\#\$\%\&\'\*\+\-\.\^_\`\|\~\:]+', ' ', manu)
-        manu = re.sub(r'[\<\=\>\;\{\}\[\]\`\@\(\)\,\\]+', ' ', manu)
-        manu = re.sub(r'[“└┐（）【】『』｛｝「」［］《》〈〉！？＝]+', ' ', manu)
+        manu = re.sub(self.numbers, '0', manu)
+        manu = re.sub(self.symbols1, ' ', manu)
+        manu = re.sub(self.symbols2, ' ', manu)
+        manu = re.sub(self.cjk_symbols, ' ', manu)
         return manu
 
     def tokenize(self, manuscript: str) -> list:
@@ -58,7 +64,7 @@ class YahooNewsTokenizer:
 
 
 def make_wakati(filetype, clean=True, time=None):
-    chunks = u.find_and_load_news(filetype, time)
+    chunks = util.find_and_load_news(filetype, time)
     dirname = './data/wakati'
     if time is None and clean and os.path.isdir(dirname):
         shutil.rmtree(dirname)
@@ -79,7 +85,7 @@ def read_wakati():
     wakati_paths = glob.glob('./data/wakati/*.wakati')
     print('reading wakati files')
     for path in wakati_paths:
-        category = u.extract_category(path)
+        category = util.extract_category(path)
         with open(path, 'r') as f:
             all_wakati = f.read().split('\n')
         for line in all_wakati:

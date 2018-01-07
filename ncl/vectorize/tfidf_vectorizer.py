@@ -6,7 +6,7 @@ from collections import Counter
 import numpy as np
 from sklearn.decomposition import IncrementalPCA
 
-import utils as u
+import util
 from vectorize import news_tokenizer
 
 
@@ -73,10 +73,10 @@ def tfidf(meta: Metadata, token_counter: Counter):
 
     max_dim = meta.token_seq_no
     tf_vec = np.zeros(max_dim)
-    total_tokens = sum(token_counter.values())
-    for token, count in token_counter.items():
-        uid = meta.token_to_id[token]
-        tf_vec[uid] = count / total_tokens * meta.idf[token]
+    total_number_of_token = sum(token_counter.values())
+    for token, counter in token_counter.items():
+        token_id = meta.token_to_id[token]
+        tf_vec[token_id] = counter / total_number_of_token * meta.idf[token]
 
     return tf_vec
 
@@ -86,14 +86,14 @@ class PcaTfidfVectorizer:
         self.meta = meta
 
     def incremental_fit(self, tokenized_news):
-        ipca = IncrementalPCA(n_components=u.PCA_DIMENSION)
+        ipca = IncrementalPCA(n_components=util.PCA_DIMENSION)
 
         '''
           ニュース原稿のtfidfの主成分をbatch_sizeで指定した分ずつ求めていく
         '''
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
-        batch = u.PCA_BATCH_DATA_LENGTH
+        batch = util.PCA_BATCH_DATA_LENGTH
         for i in range(0, news_len, batch):
             chunks = tokenized_news[i:i + batch]
             mat = np.array([tfidf(self.meta, c) for _, c in chunks])
@@ -116,10 +116,10 @@ class PcaTfidfVectorizer:
         return np.array(data)
 
 
-def main(filetype='json'):
+def main():
 
     meta = Metadata()
-    meta.build(min_token_len=u.MINIMUM_TOKEN_LENGTH)
+    meta.build(min_token_len=util.MINIMUM_TOKEN_LENGTH)
     print('TFIDF calculated')
 
     pca_tfidf = PcaTfidfVectorizer(meta)
@@ -131,8 +131,8 @@ def main(filetype='json'):
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
-    u.pickle_dump(meta, dirname + 'tfidf.meta')
+    util.pickle_dump(meta, dirname + 'tfidf.meta')
     print('Meta data was dumped.')
 
-    u.pickle_dump(learning_data, dirname + 'tfidf.data')
+    util.pickle_dump(learning_data, dirname + 'tfidf.data')
     print('Learning data was dumped.')

@@ -6,11 +6,11 @@ import os
 from scraping import yahoonews as yahoonews
 
 
-def fetch_news(rss_dic, time, filetype='json'):
+def fetch_news(rss_dic, time, filetype):
     chunk_dic = scrape(rss_dic, time)
     for k, v in chunk_dic.items():
         timestr = time.strftime('%Y-%m-%d')
-        targetdir = './data/{0}/{1}'.format(timestr, k)
+        targetdir = './data/{0}/{1}'.format(filetype, k)
         if not os.path.isdir(targetdir):
             os.makedirs(targetdir)
 

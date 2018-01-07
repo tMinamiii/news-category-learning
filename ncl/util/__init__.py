@@ -55,6 +55,7 @@ def find_and_load_news(filetype, time=None):
         else:
             regex = './data/{0}/{1}/*.{0}'.format(filetype, cat)
         all_paths += glob.glob(regex)
+        print(all_paths)
     all_chunks = []
     for path in all_paths:
         with open(path, 'r') as f:
