@@ -16,10 +16,10 @@ if __name__ == '__main__':
         print('scraping ...')
         fetch.main(filetype)
         print('scraping finished')
-    elif command[2] == 'wakati':
+    elif command[1] == 'wakati':
         print('creating wakati files')
         # csv or json
-        filetype = command[3]
+        filetype = command[2]
         time = command[3]
         now = None
         if time == 'now':
