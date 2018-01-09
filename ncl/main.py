@@ -14,19 +14,15 @@ if __name__ == '__main__':
         # csv or json
         filetype = command[2]
         print('scraping ...')
-        fetch.main(filetype)
+        now = datetime.datetime.now()
+        fetch.main(filetype, time=now)
+        news_tokenizer.make_wakati(filetype, time=now)
         print('scraping finished')
     elif command[1] == 'wakati':
         print('creating wakati files')
         # csv or json
         filetype = command[2]
-        time = command[3]
-        now = None
-        if time == 'now':
-            now = datetime.datetime.now()
-            news_tokenizer.make_wakati(filetype, time=now)
-        elif time == 'all':
-            news_tokenizer.make_wakati(filetype, clean=True, time=now)
+        news_tokenizer.make_wakati(filetype, clean=True)
         print('creating finished')
     elif command[1] == 'vectorize':
         # tfidf or word2vec

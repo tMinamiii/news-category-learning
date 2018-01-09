@@ -1,5 +1,4 @@
 import csv
-import datetime
 import json
 import os
 
@@ -53,7 +52,7 @@ def write_news_file(filename, chunks, filetype):
                                  chunk['manuscript_len'], chunk['manuscript']])
 
 
-def main(filetype):
+def filetype(filetype, time):
     rss = yahoonews.YahooRSSScraper()
 
     jp = rss.scrape_jp_newslist()
@@ -63,8 +62,6 @@ def main(filetype):
     it_science = rss.scrape_it_science_newslist()
     life = rss.scrape_life_newslist()
     entertaiment = rss.scrape_entertaiment_newslist()
-
-    time = datetime.datetime.now()
 
     fetch_news(jp, time, filetype)
     fetch_news(world, time, filetype)
