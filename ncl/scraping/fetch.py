@@ -52,7 +52,7 @@ def write_news_file(filename, chunks, filetype):
                                  chunk['manuscript_len'], chunk['manuscript']])
 
 
-def filetype(filetype, time):
+def main(filetype, time):
     rss = yahoonews.YahooRSSScraper()
 
     jp = rss.scrape_jp_newslist()
