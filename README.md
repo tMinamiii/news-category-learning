@@ -26,3 +26,5 @@ python main.py vectorize word2vec
 ```
 python main.py vectorize tfidf
 ```
+
+
