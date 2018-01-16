@@ -1,9 +1,10 @@
 import os
 import random
+from tokenize import news_tokenizer
+
 from gensim.models import doc2vec
 
-from vectorize import news_tokenizer
-import util
+import settings
 
 
 def sentences(wakati_list):
@@ -13,7 +14,7 @@ def sentences(wakati_list):
 
 
 def divide_data(divide_ratio):
-    wakati_list = list(news_tokenizer.read_wakati())
+    wakati_list = list(news_tokenizer.read_tokenized_news())
     random.shuffle(wakati_list)
     train_length = int(len(wakati_list) * divide_ratio)
     print(train_length)
@@ -67,7 +68,7 @@ def validate(training_ratio):
 
 def main(validation=False):
     if validation:
-        validate(util.TRAINING_DATA_RATIO)
+        validate(settings.TRAINING_DATA_RATIO)
     else:
         model = validate(1)
         dirname = './data/vector/d2v'

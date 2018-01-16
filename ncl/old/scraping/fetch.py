@@ -2,7 +2,7 @@ import csv
 import json
 import os
 
-from scraping import yahoonews as yahoonews
+from old.scraping import yahoonews as yahoonews
 
 
 def fetch_news(rss_dic, time, filetype):

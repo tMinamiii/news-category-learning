@@ -6,8 +6,8 @@ from collections import Counter
 import numpy as np
 from sklearn.decomposition import IncrementalPCA
 
-import util
-from vectorize import news_tokenizer
+import settings
+from tokenize import news_tokenizer
 
 
 class Metadata:
@@ -30,7 +30,7 @@ class Metadata:
         self.idf = {}
 
     def build(self, min_token_len: int):
-        wakati_gen = news_tokenizer.read_wakati()
+        wakati_gen = news_tokenizer.read_tokenized_news()
         for category, tokens in wakati_gen:
             if min_token_len >= len(tokens):
                 continue
@@ -86,14 +86,14 @@ class PcaTfidfVectorizer:
         self.meta = meta
 
     def incremental_fit(self, tokenized_news):
-        ipca = IncrementalPCA(n_components=util.PCA_DIMENSION)
+        ipca = IncrementalPCA(n_components=settings.PCA_DIMENSION)
 
         '''
           ニュース原稿のtfidfの主成分をbatch_sizeで指定した分ずつ求めていく
         '''
         news_len = len(tokenized_news)
         random.shuffle(tokenized_news)
-        batch = util.PCA_BATCH_DATA_LENGTH
+        batch = settings.PCA_BATCH_DATA_LENGTH
         for i in range(0, news_len, batch):
             chunks = tokenized_news[i:i + batch]
             mat = np.array([tfidf(self.meta, c) for _, c in chunks])
@@ -119,7 +119,7 @@ class PcaTfidfVectorizer:
 def main():
 
     meta = Metadata()
-    meta.build(min_token_len=util.MINIMUM_TOKEN_LENGTH)
+    meta.build(min_token_len=settings.MINIMUM_TOKEN_LENGTH)
     print('TFIDF calculated')
 
     pca_tfidf = PcaTfidfVectorizer(meta)
@@ -131,8 +131,8 @@ def main():
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
-    util.pickle_dump(meta, dirname + 'tfidf.meta')
+    settings.pickle_dump(meta, dirname + 'tfidf.meta')
     print('Meta data was dumped.')
 
-    util.pickle_dump(learning_data, dirname + 'tfidf.data')
+    settings.pickle_dump(learning_data, dirname + 'tfidf.data')
     print('Learning data was dumped.')

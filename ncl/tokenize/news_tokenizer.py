@@ -6,7 +6,7 @@ import shutil
 import MeCab
 
 import mojimoji
-import util
+import settings
 
 
 class YahooNewsTokenizer:
@@ -63,8 +63,8 @@ class YahooNewsTokenizer:
         return token_list
 
 
-def make_wakati(filetype, clean=True, time=None):
-    chunks = util.find_and_load_news(filetype, time)
+def make_tokenized_news(filetype, clean=True, time=None):
+    chunks = settings.find_and_load_news(filetype, time)
     dirname = './data/wakati'
     if time is None and clean and os.path.isdir(dirname):
         shutil.rmtree(dirname)
@@ -81,11 +81,11 @@ def make_wakati(filetype, clean=True, time=None):
             f.write('\n')
 
 
-def read_wakati():
+def read_tokenized_news():
     wakati_paths = glob.glob('./data/wakati/*.wakati')
     print('reading wakati files')
     for path in wakati_paths:
-        category = util.extract_category(path)
+        category = settings.extract_category(path)
         with open(path, 'r') as f:
             all_wakati = f.read().split('\n')
         for line in all_wakati:
