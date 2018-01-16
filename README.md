@@ -1,17 +1,15 @@
 ## news category learning 
 
+
 ### commands
 
-* scraping news to **csv** files 
-csvの場合は、ニュース原稿から改行が削除され1行にしてから保存する
-
-* vectorize with word2vec
+* word2vec/doc2vecを用いてニュース原稿をベクトル化する
 
 ```
 python main.py vectorize word2vec
 ```
 
-* vectorize with tfidf
+* TFIDF+主成分でニュース原稿をベクトル化する(数時間掛かるので注意)
 
 ```
 python main.py vectorize tfidf
