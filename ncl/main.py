@@ -1,8 +1,6 @@
-import datetime
 import sys
 
 from learning import task
-from scraping import fetch
 from vectorize import news_tokenizer, tfidf_vectorizer, w2v_vectorizer
 
 if __name__ == '__main__':
@@ -10,8 +8,8 @@ if __name__ == '__main__':
     length = len(command)
     if length == 1:
         sys.exit()
-   elif command[1] == 'wakati':
-        print('creating wakati files')
+    elif command[1] == 'tokenize':
+        print('creating token files')
         # csv or json
         filetype = command[2]
         news_tokenizer.make_wakati(filetype, clean=True)
