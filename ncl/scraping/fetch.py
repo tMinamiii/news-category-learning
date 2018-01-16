@@ -17,7 +17,7 @@ def fetch_news(rss_dic, time, filetype):
         write_news_file(filename, v, filetype)
 
 
-def scrape(rss_dic, time, oneline=False) -> list:
+def scrape(rss_dic, time, oneline=True) -> list:
     scraper = yahoonews.YahooNewsScraper()
     chunk_dic = {}
     for url in rss_dic.values():

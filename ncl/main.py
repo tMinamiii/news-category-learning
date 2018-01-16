@@ -10,15 +10,7 @@ if __name__ == '__main__':
     length = len(command)
     if length == 1:
         sys.exit()
-    if command[1] == 'scraping':
-        # csv or json
-        filetype = command[2]
-        print('scraping ...')
-        now = datetime.datetime.now()
-        fetch.main(filetype, time=now)
-        news_tokenizer.make_wakati(filetype, time=now)
-        print('scraping finished')
-    elif command[1] == 'wakati':
+   elif command[1] == 'wakati':
         print('creating wakati files')
         # csv or json
         filetype = command[2]
