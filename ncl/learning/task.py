@@ -1,11 +1,12 @@
 import numpy as np
 from learning import double_layer_nn as dlnn
 import settings
+import utils
 
 
 def main():
-    meta = settings.pickle_load(settings.METADATA_FILE)
-    label_and_data = settings.pickle_load(settings.DATA_FILE)
+    meta = utils.pickle_load(settings.METADATA_FILE)
+    label_and_data = utils.pickle_load(settings.DATA_FILE)
     np.random.shuffle(label_and_data)
     length = len(label_and_data)
     boundary = int(length * settings.TRAINING_DATA_RATIO)

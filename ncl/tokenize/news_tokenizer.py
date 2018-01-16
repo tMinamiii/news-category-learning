@@ -1,3 +1,4 @@
+import ftplib
 import glob
 import os
 import re
@@ -6,7 +7,7 @@ import shutil
 import MeCab
 
 import mojimoji
-import settings
+import utils
 
 
 class YahooNewsTokenizer:
@@ -63,8 +64,8 @@ class YahooNewsTokenizer:
         return token_list
 
 
-def make_tokenized_news(filetype, clean=True, time=None):
-    chunks = settings.find_and_load_news(filetype, time)
+def make_tokenized_news(clean=True, time=None):
+    chunks = utils.find_and_load_ftp_files()
     dirname = './data/wakati'
     if time is None and clean and os.path.isdir(dirname):
         shutil.rmtree(dirname)
@@ -85,7 +86,7 @@ def read_tokenized_news():
     wakati_paths = glob.glob('./data/wakati/*.wakati')
     print('reading wakati files')
     for path in wakati_paths:
-        category = settings.extract_category(path)
+        category = utils.extract_category(path)
         with open(path, 'r') as f:
             all_wakati = f.read().split('\n')
         for line in all_wakati:

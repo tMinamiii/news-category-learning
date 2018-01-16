@@ -7,6 +7,7 @@ import numpy as np
 from sklearn.decomposition import IncrementalPCA
 
 import settings
+import utils
 from tokenize import news_tokenizer
 
 
@@ -131,8 +132,8 @@ def main():
     if not os.path.isdir(dirname):
         os.mkdir(dirname)
 
-    settings.pickle_dump(meta, dirname + 'tfidf.meta')
+    utils.pickle_dump(meta, dirname + 'tfidf.meta')
     print('Meta data was dumped.')
 
-    settings.pickle_dump(learning_data, dirname + 'tfidf.data')
+    utils.pickle_dump(learning_data, dirname + 'tfidf.data')
     print('Learning data was dumped.')
