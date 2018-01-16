@@ -8,7 +8,7 @@ from sklearn.decomposition import IncrementalPCA
 
 import settings
 import utils
-from tokenize import news_tokenizer
+from tokenizer import news_tokenizer
 
 
 class Metadata:

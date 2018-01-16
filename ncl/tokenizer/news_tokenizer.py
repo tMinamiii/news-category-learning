@@ -65,7 +65,7 @@ class YahooNewsTokenizer:
 
 def make_tokenized_news(clean=True, time=None):
     chunks = utils.find_and_load_ftp_files()
-    dirname = './data/wakati'
+    dirname = './data/token'
     if time is None and clean and os.path.isdir(dirname):
         shutil.rmtree(dirname)
     if not os.path.isdir(dirname):
@@ -75,15 +75,15 @@ def make_tokenized_news(clean=True, time=None):
         ynt = YahooNewsTokenizer()
         sanitize = ynt.sanitize(ck['manuscript'])
         tokens = ynt.tokenize(sanitize)
-        filepath = '{0}/{1}.wakati'.format(dirname, category)
+        filepath = '{0}/{1}.token'.format(dirname, category)
         with open(filepath, 'a') as f:
             f.write(' '.join(tokens))
             f.write('\n')
 
 
 def read_tokenized_news():
-    wakati_paths = glob.glob('./data/wakati/*.wakati')
-    print('reading wakati files')
+    wakati_paths = glob.glob('./data/token/*.token')
+    print('reading token files')
     for path in wakati_paths:
         category = utils.extract_category(path)
         with open(path, 'r') as f:

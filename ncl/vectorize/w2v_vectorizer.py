@@ -1,6 +1,6 @@
 import os
 import random
-from tokenize import news_tokenizer
+from tokenizer import news_tokenizer
 
 from gensim.models import doc2vec
 

@@ -2,7 +2,7 @@ import sys
 
 from learning import task
 from vectorize import tfidf_vectorizer, w2v_vectorizer
-from tokenize import news_tokenizer
+from tokenizer import news_tokenizer
 
 
 if __name__ == '__main__':
@@ -30,10 +30,6 @@ if __name__ == '__main__':
             print('creating tfidf vectors')
             tfidf_vectorizer.main()
         print('vectoring finished')
-    elif command[1] == 'learning':
+    elif command[1] == 'deeplearning':
         # tfidf or word2vec
-        learning_type = command[2]
-        if learning_type == 'tfidf':
-            task.main()
-        elif learning_type == 'word2vec':
-            pass
+        task.main()
