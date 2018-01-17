@@ -32,7 +32,7 @@
 
 ## 自宅環境
 
-- FTP server address : olive.local
+- FTP server address/path : 172.16.27.200/Crawler/YahooNews
     - ここにニュースがないと動作しない
 
 ## 実行
@@ -61,7 +61,7 @@ python main.py vectorize word2vec make_model
 ### TFIDF+主成分でニュース原稿をベクトル化する
 こちらもトークナイズの結果を使用してTFIDFでベクトル化します。
 7万次元以上になるため主成分分析で次元を減らします。
-この処理は数時間掛かるので注意してください。
+上記のスペックでも数時間掛かるので注意してください。
 
 ``` bash
 python main.py vectorize tfidf

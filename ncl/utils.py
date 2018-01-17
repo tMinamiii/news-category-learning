@@ -28,8 +28,8 @@ def extract_category(path):
 def find_and_load_ftp_files():
     ftp = ftplib.FTP()
     ftp.encoding = 'utf-8'
-    ftp.connect('olive.local', 21)
-    ftp.login('crawlerpy', 'crawlerpy')
+    ftp.connect(settings.FTP_SERVER, 21)
+    ftp.login(settings.FTP_USER, settings.FTP_SERVER)
     dirname = 'Crawler/YahooNews/'
     find_result = set()
     for cat in settings.CATEGORIES:
