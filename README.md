@@ -5,15 +5,15 @@
 
 ```
 .
-├── ncl            # ルート
-│   ├── data　     # 各種データ
+├── ncl              # ルート
+│   ├── data        # 各種データ
 │   │   ├── csv    # ニュース原稿csv
 │   │   ├── vector # ベクトル化データ
 │   │   └── token  # トークナイズデータ
-│   ├── learning   # 深層学習モジュール
+│   ├── learning    # 深層学習モジュール
 │   │   └── ...
-│   ├── main.py    # メイン
-│   ├── old        # 使われなくなったコード
+│   ├── main.py     # メイン
+│   ├── old         # 使われなくなったコード
 │   │   └── ...
 │   ├── settings.py # 設定ファイル
 │   ├── utils.py    # utilモジュール
@@ -23,6 +23,17 @@
 └── requirements.txt
 
 ```
+
+## 動作確認環境
+
+- OS: Windows Subsystem for Linux (Ubuntu16.04)
+- CPU: Intel Core i7-4890K 4.00 GHz 
+- Memory: 32G Byte
+
+## 自宅環境
+
+- FTP server address : olive.local
+    - ここにニュースがないと動作しない
 
 ## 実行
 
