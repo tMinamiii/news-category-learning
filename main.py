@@ -1,8 +1,8 @@
 import sys
 
-from learning import task
-from vectorize import tfidf_vectorizer, w2v_vectorizer
-from tokenizer import news_tokenizer
+from ncl.learning import task
+from ncl.vectorize import tfidf_vectorizer, w2v_vectorizer
+from ncl.tokenizer import news_tokenizer
 
 
 if __name__ == '__main__':
@@ -12,9 +12,7 @@ if __name__ == '__main__':
         sys.exit()
     elif command[1] == 'tokenize':
         print('creating token files')
-        # csv or json
-        filetype = command[2]
-        news_tokenizer.make_tokenized_news(filetype, clean=True)
+        news_tokenizer.make_tokenized_news()
         print('creating finished')
     elif command[1] == 'vectorize':
         # tfidf or word2vec

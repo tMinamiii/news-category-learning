@@ -1,7 +1,7 @@
 import numpy as np
-from learning import double_layer_nn as dlnn
-import settings
-import utils
+
+from ncl.learning import double_layer_nn as dlnn
+from ncl import settings, utils
 
 
 def main():

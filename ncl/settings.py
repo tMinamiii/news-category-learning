@@ -22,3 +22,5 @@ PCA_BATCH_DATA_LENGTH = 150
 FTP_SERVER = '172.16.27.200'
 FTP_USER = 'crawlerpy'
 FTP_PASS = 'crawlerpy'
+FTP_NEWS_DIR = 'Crawler/YahooNews'
+FTP_TOKEN_DIR = 'Crawler/TokenFiles'

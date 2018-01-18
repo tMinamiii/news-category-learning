@@ -12,13 +12,13 @@
 │   │   └── token  # トークナイズデータ
 │   ├── learning    # 深層学習モジュール
 │   │   └── ...
-│   ├── main.py     # メイン
 │   ├── old         # 使われなくなったコード
 │   │   └── ...
 │   ├── settings.py # 設定ファイル
 │   ├── utils.py    # utilモジュール
 │   └── vectorize   # ベクトル化モジュール
 │       └── ...
+├── main.py     # メイン
 ├── README.md
 └── requirements.txt
 
@@ -34,14 +34,6 @@
 
 - FTP server address/path : 172.16.27.200/Crawler/YahooNews
     - ここにニュースがないと動作しない
-
-## 実行
-
-以下のコマンドは`ncl`ディレクトリ内で実行して下さい。
-
-``` bash
-cd ./ncl
-```
 
 ### ニュース原稿をtokenizeする
 トークナイズはmecab + neologdによって形態素解析した後に名詞、形容詞、動詞のみを取り出してファイルに保存します。

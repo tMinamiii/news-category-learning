@@ -1,10 +1,10 @@
 import os
 import random
-from tokenizer import news_tokenizer
 
 from gensim.models import doc2vec
 
-import settings
+from ncl import settings
+from ncl.tokenizer import news_tokenizer
 
 
 def sentences(wakati_list):

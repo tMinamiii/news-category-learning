@@ -1,10 +1,9 @@
 import csv
 import ftplib
-import glob
 import os
 import pickle
 
-import settings
+from ncl import settings
 
 
 def pickle_load(filepath) -> None:
@@ -29,11 +28,11 @@ def find_and_load_ftp_files():
     ftp = ftplib.FTP()
     ftp.encoding = 'utf-8'
     ftp.connect(settings.FTP_SERVER, 21)
-    ftp.login(settings.FTP_USER, settings.FTP_SERVER)
-    dirname = 'Crawler/YahooNews/'
+    ftp.login(settings.FTP_USER, settings.FTP_PASS)
     find_result = set()
     for cat in settings.CATEGORIES:
-        category_path = dirname + cat
+        category_path = '{0}/{1}'.format(settings.FTP_NEWS_DIR, cat)
+
         def find_ftp(line):
             filename = line.split(' ')[-1]
             filepath = '{0}/{1}'.format(category_path, filename)
@@ -42,7 +41,7 @@ def find_and_load_ftp_files():
         lscmd = 'LIST {}'.format(category_path)
         ftp.retrlines(lscmd, find_ftp)
 
-    all_chunks = []
+    all_chunks = {}
     for path in find_result:
         retrcmd = 'RETR {}'.format(path)
         byte_list = bytearray()
@@ -57,7 +56,9 @@ def find_and_load_ftp_files():
                         'manuscript_len': line[2],
                         'manuscript': line[3]}
             chunk.append(line_dic)
-        all_chunks += chunk
+        basename = os.path.basename(path)
+        name, ext = os.path.splitext(basename)
+        all_chunks[name] = chunk
     ftp.quit()
     print(len(all_chunks))
     return all_chunks

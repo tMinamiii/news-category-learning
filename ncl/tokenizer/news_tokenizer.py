@@ -1,12 +1,15 @@
+import ftplib
 import glob
-import os
+import posixpath
 import re
-import shutil
+import tempfile
+from ftplib import error_perm
+from posixpath import dirname
 
 import MeCab
 
 import mojimoji
-import utils
+from ncl import settings, utils
 
 
 class YahooNewsTokenizer:
@@ -63,22 +66,44 @@ class YahooNewsTokenizer:
         return token_list
 
 
-def make_tokenized_news(clean=True, time=None):
-    chunks = utils.find_and_load_ftp_files()
-    dirname = './data/token'
-    if time is None and clean and os.path.isdir(dirname):
-        shutil.rmtree(dirname)
-    if not os.path.isdir(dirname):
-        os.makedirs(dirname)
-    for ck in chunks:
-        category = ck['category']
-        ynt = YahooNewsTokenizer()
-        sanitize = ynt.sanitize(ck['manuscript'])
-        tokens = ynt.tokenize(sanitize)
-        filepath = '{0}/{1}.token'.format(dirname, category)
-        with open(filepath, 'a') as f:
-            f.write(' '.join(tokens))
-            f.write('\n')
+def make_tokenized_news():
+    all_chunks = utils.find_and_load_ftp_files()
+    ftp = ftplib.FTP()
+    ftp.encoding = 'utf-8'
+    ftp.connect(settings.FTP_SERVER, 21)
+    ftp.login(settings.FTP_USER, settings.FTP_PASS)
+    for filename, chunks in all_chunks.items():
+        with tempfile.TemporaryFile() as fp:
+            for chunk in chunks:
+                category = chunk['category']
+                ynt = YahooNewsTokenizer()
+                sanitize = ynt.sanitize(chunk['manuscript'])
+                tokens = ynt.tokenize(sanitize)
+                line = ' '.join(tokens) + '\n'
+                fp.write(line.encode('utf-8'))
+            filepath = '/{0}/{1}/{2}.token'.format(
+                settings.FTP_TOKEN_DIR,
+                category,
+                filename)
+            dirname, filename = posixpath.split(filepath)
+            ftp_makedirs_cwd(ftp, dirname)
+            fp.seek(0)
+            ftp.storbinary('STOR %s' % filepath, fp)
+    ftp.quit()
+
+
+def ftp_makedirs_cwd(ftp, path, first_call=True):
+    """Set the current directory of the FTP connection given in the `ftp`
+    argument (as a ftplib.FTP object), creating all parent directories if they
+    don't exist. The ftplib.FTP object must be already connected and logged in.
+    """
+    try:
+        ftp.cwd(path)
+    except error_perm:
+        ftp_makedirs_cwd(ftp, dirname(path), False)
+        ftp.mkd(path)
+        if first_call:
+            ftp.cwd(path)
 
 
 def read_tokenized_news():
