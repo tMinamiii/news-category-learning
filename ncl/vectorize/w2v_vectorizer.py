@@ -4,7 +4,7 @@ import random
 from gensim.models import doc2vec
 
 from ncl import settings
-from ncl.tokenizer import news_tokenizer
+from ncl import utils
 
 
 def sentences(wakati_list):
@@ -14,7 +14,7 @@ def sentences(wakati_list):
 
 
 def divide_data(divide_ratio):
-    wakati_list = list(news_tokenizer.read_tokenized_news())
+    wakati_list = list(utils.find_and_load_token_files())
     random.shuffle(wakati_list)
     train_length = int(len(wakati_list) * divide_ratio)
     print(train_length)

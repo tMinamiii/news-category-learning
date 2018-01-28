@@ -23,6 +23,7 @@ if __name__ == '__main__':
             if validation == 'validation':
                 w2v_vectorizer.main(validation=True)
             elif validation == 'make_model':
+                print('make word2vec model')
                 w2v_vectorizer.main(validation=False)
         elif vector_type == 'tfidf':
             print('creating tfidf vectors')
