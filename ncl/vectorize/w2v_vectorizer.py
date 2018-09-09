@@ -3,14 +3,12 @@ import random
 
 from gensim.models import doc2vec
 
-from ncl import settings
-from ncl import utils
+from ncl import settings, utils
 
 
 def sentences(wakati_list):
-    for category, tokens in wakati_list:
-        yield doc2vec.LabeledSentence(tokens,
-                                      tags=[category])
+    return [doc2vec.LabeledSentence(tokens, tags=[category])
+            for category, tokens in wakati_list]
 
 
 def divide_data(divide_ratio):
@@ -45,7 +43,7 @@ def validate(training_ratio):
     data = sentences(train)
     print('Building model')
     model = doc2vec.Doc2Vec(data,
-                            size=200,
+                            vector_size=100,
                             alpha=0.0002,
                             min_alpha=0.000001,
                             window=15,

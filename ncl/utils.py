@@ -19,8 +19,9 @@ def pickle_dump(dumpdata, filepath: str) -> None:
 
 
 def extract_category(path):
-    basename = os.path.basename(path)
-    category, _ = os.path.splitext(basename)
+    category = os.path.dirname(path).split('/')[-1]
+    print(category)
+    # category, _ = os.path.splitext(basename)
     return category
 
 

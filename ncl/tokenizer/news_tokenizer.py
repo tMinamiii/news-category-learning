@@ -14,7 +14,7 @@ from ncl import settings, utils
 
 class YahooNewsTokenizer:
     def __init__(self):
-        self._m = MeCab.Tagger(' -d  /usr/lib/mecab/dic/mecab-ipadic-neologd')
+        self._m = MeCab.Tagger(' -d  ' + settings.NEOLOGD_DIR)
         # compileしておく
         self.eng_sentences = re.compile(r'[a-zA-Z0-9]+[ ,\.\'\:\;\-\+?\!]')
         self.numbers = re.compile(r'[0-9０-９]+')
@@ -107,7 +107,7 @@ def ftp_makedirs_cwd(ftp, path, first_call=True):
 
 
 def read_tokenized_news():
-    wakati_paths = glob.glob('./data/token/*.token')
+    wakati_paths = glob.glob('./data/token/**/*.token')
     print('reading token files')
     for path in wakati_paths:
         category = utils.extract_category(path)

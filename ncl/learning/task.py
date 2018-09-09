@@ -1,7 +1,7 @@
 import numpy as np
 
-from ncl.learning import double_layer_nn as dlnn
 from ncl import settings, utils
+from ncl.learning import double_layer_nn as dlnn
 
 
 def main():
@@ -14,11 +14,14 @@ def main():
     train = label_and_data[0:boundary - 1]
     print(len(test))
     print(len(train))
+    print(meta.categories)
     num_categories = len(meta.categories)
     predict_label = test[:, 0].tolist()
     predict_data = test[:, 1].tolist()
 
-    nn = dlnn.DoubleLayerNetwork(settings.LEARNING_RATE, settings.NUM_UNITS,
+    nn = dlnn.DoubleLayerNetwork(settings.LEARNING_RATE,
+                                 settings.NUM_UNITS1, settings.NUM_UNITS2,
+                                 settings.NUM_UNITS3, settings.NUM_UNITS4,
                                  settings.PCA_DIMENSION, num_categories,
                                  settings.LOG_FILE)
     i = 0
