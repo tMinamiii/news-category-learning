@@ -1,9 +1,8 @@
 import sys
 
 from ncl.learning import task
-from ncl.vectorize import tfidf_vectorizer, w2v_vectorizer
 from ncl.tokenizer import news_tokenizer
-
+from ncl.vectorize import tfidf_vectorizer, w2v_vectorizer
 
 if __name__ == '__main__':
     command = sys.argv

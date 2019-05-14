@@ -1,0 +1,24 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+
+[packages]
+tensorflow-gpu = "*"
+mojimoji = "*"
+mecab-python3 = "*"
+numpy = "*"
+pylint = "*"
+pycodestyle = "*"
+autopep8 = "*"
+flake8 = "*"
+html5lib = "*"
+gensim = "*"
+scikit-learn = "*"
+yapf = "*"
+mypy = "*"
+
+[requires]
+python_version = "3.6"
